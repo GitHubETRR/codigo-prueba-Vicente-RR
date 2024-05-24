@@ -1,10 +1,10 @@
 Algoritmo TP_Diagramas_de_flujo
-	// Saluda al usuario y le pregunta cómo expresa los ángulos
+	// Saluda al usuario y le pregunta cÃ³mo expresa los Ã¡ngulos
 	tipo_de_angulo <- bienvenida()
 	Repetir
-		// Pregunta qué operación quiere realizar, cada una siendo su punto respectivo del TP
+		// Pregunta quÃ© operaciÃ³n quiere realizar, cada una siendo su punto respectivo del TP
 		operacion <- consultar_operacion()
-		// Actúa en función de la operación indicada
+		// ActÃºa en funciÃ³n de la operaciÃ³n indicada
 		Segun operacion  Hacer
 			1:
 				binomica_a_polar(tipo_de_angulo)
@@ -19,7 +19,7 @@ Algoritmo TP_Diagramas_de_flujo
 			De Otro Modo:
 				// Es imposible
 		FinSegun
-		Escribir 'Si deseas hacer otro pasaje u operación, enviá 1'
+		Escribir 'Si deseas hacer otro pasaje u operaciÃ³n, enviÃ¡ 1'
 		// Repite el algoritmo en caso de ser deseado
 		Leer repite
 	Mientras Que repite==1
@@ -27,20 +27,20 @@ FinAlgoritmo
 
 Funcion tipo_de_angulo = bienvenida()
 	Repetir
-		Escribir 'Bienvenido a la calculadora de números complejos. ¿Usás radianes (1) o grados (2)?'
+		Escribir 'Bienvenido a la calculadora de nÃºmeros complejos. Â¿UsÃ¡s radianes (1) o grados (2)?'
 		Leer tipo_de_angulo
 	Mientras Que tipo_de_angulo<>1 Y tipo_de_angulo<>2
 FinFuncion
 
 Funcion operacion = consultar_operacion()
 	Repetir
-		Escribir '¿Querés pasar de binómica a polar (1), de polar a binómica (2), sumar complejos (3), calcular los componentes que forman una impedancia (4) o calcular los componentes según el voltaje y la intensidad (5)?'
+		Escribir 'Â¿QuerÃ©s pasar de binÃ³mica a polar (1), de polar a binÃ³mica (2), sumar complejos (3), calcular los componentes que forman una impedancia (4) o calcular los componentes segÃºn el voltaje y la intensidad (5)?'
 		Leer operacion
 	Mientras Que operacion<>1 Y operacion<>2 Y operacion<>3 Y operacion<>4 Y operacion<>5
 FinFuncion
 
 Funcion binomica_a_polar(tipo_de_angulo)
-	// Pregunta al usuario las componentes de su número complejo en forma cartesiana
+	// Pregunta al usuario las componentes de su nÃºmero complejo en forma cartesiana
 	a <- consultar_a()
 	b <- consultar_b()
 	// Calcula las componentes del complejo en forma polar
@@ -51,7 +51,7 @@ Funcion binomica_a_polar(tipo_de_angulo)
 FinFuncion
 
 Funcion polar_a_binomica(tipo_de_angulo)
-	// Pregunta el módulo y ángulo del número complejo
+	// Pregunta el mÃ³dulo y Ã¡ngulo del nÃºmero complejo
 	modulo <- consultar_modulo()
 	angulo <- consultar_angulo()
 	// Calcula las componentes cartesianas
@@ -62,24 +62,24 @@ Funcion polar_a_binomica(tipo_de_angulo)
 FinFuncion
 
 Funcion sumar_complejos(tipo_de_angulo)
-	// Pregunta la cantidad de números complejos a sumar
+	// Pregunta la cantidad de nÃºmeros complejos a sumar
 	cantidad_suma <- consultar_suma()
 	// Establece las componentes cartesianas del resultado en 0, para luego empezar a sumarles
 	a_suma <- 0
 	b_suma <- 0
 	// Repite el proceso de suma todas las veces que haya sido indicado
 	Para contador<-1 Hasta cantidad_suma Hacer
-		// Pregunta si el complejo que se va a introducir está en forma binómica o polar
+		// Pregunta si el complejo que se va a introducir estÃ¡ en forma binÃ³mica o polar
 		forma_complejo <- consultar_forma_complejo(contador)
 		Si forma_complejo==1 Entonces
-			// En caso de que esté en forma binómica, únicamente consulta sus componentes
+			// En caso de que estÃ© en forma binÃ³mica, Ãºnicamente consulta sus componentes
 			a <- consultar_a()
 			b <- consultar_b()
 		SiNo
-			// Si está en forma polar, consulta su módulo y ángulo
+			// Si estÃ¡ en forma polar, consulta su mÃ³dulo y Ã¡ngulo
 			modulo <- consultar_modulo()
 			angulo <- consultar_angulo()
-			// Y los pasa a forma binómica
+			// Y los pasa a forma binÃ³mica
 			a <- polar_a(modulo,angulo,tipo_de_angulo)
 			b <- polar_b(modulo,angulo,tipo_de_angulo)
 		FinSi
@@ -96,7 +96,7 @@ Funcion impedancia_a_componentes()
 	R <- consultar_R()
 	X <- consultar_X()
 	w <- consultar_w()
-	// Le da valores de 0 a la capacitancia y la inductancia para evitar un error en el programa por enviar un dato vacío
+	// Le da valores de 0 a la capacitancia y la inductancia para evitar un error en el programa por enviar un dato vacÃ­o
 	C <- 0
 	L <- 0
 	Si X>0 Entonces
@@ -115,23 +115,23 @@ Funcion impedancia_a_componentes()
 FinFuncion
 
 Funcion voltaje_intensidad_a_componentes(tipo_de_angulo)
-	// Pregunta todos los datos iniciales necesarios (módulo y ángulo de los fasores de tensión y corriente y la velocidad angular/frecuencia)
+	// Pregunta todos los datos iniciales necesarios (mÃ³dulo y Ã¡ngulo de los fasores de tensiÃ³n y corriente y la velocidad angular/frecuencia)
 	modulo_V <- consultar_modulo_V()
 	angulo_V <- consultar_angulo_V()
 	modulo_I <- consultar_modulo_I()
 	angulo_I <- consultar_angulo_I()
 	w <- consultar_w()
-	// Verifica si hay voltaje o corriente 0 antes de calcular los valores de los componentes, porque en esos casos el circuito está abierto o es un corto
+	// Verifica si hay voltaje o corriente 0 antes de calcular los valores de los componentes, porque en esos casos el circuito estÃ¡ abierto o es un corto
 	Si modulo_V==0 O modulo_I==0 Entonces
 		circuito_sin_componentes(modulo_V,modulo_I)
 	SiNo
-		// Calcula el módulo y el ángulo de la impedancia como la razón entre el voltaje y la corriente
+		// Calcula el mÃ³dulo y el Ã¡ngulo de la impedancia como la razÃ³n entre el voltaje y la corriente
 		modulo_Z <- modulo_V/modulo_I
 		angulo_Z <- angulo_V-angulo_I
-		// Calcula la parte real (resistencia) y la imaginaria (reactancia) de la impedancia pasándola a forma binómica
+		// Calcula la parte real (resistencia) y la imaginaria (reactancia) de la impedancia pasÃ¡ndola a forma binÃ³mica
 		R <- polar_a(modulo_Z,angulo_Z,tipo_de_angulo)
 		X <- polar_b(modulo_Z,angulo_Z,tipo_de_angulo)
-		// Le da valores de 0 a la capacitancia y la inductancia para evitar un error en el programa por enviar un dato vacío
+		// Le da valores de 0 a la capacitancia y la inductancia para evitar un error en el programa por enviar un dato vacÃ­o
 		C <- 0
 		L <- 0
 		Si X>0 Entonces
@@ -154,26 +154,26 @@ FinFuncion
 
 Funcion a = consultar_a()
 	// Pregunta la parte real
-	Escribir 'Siendo tu número complejo a + b*j'
-	Escribir '¿Cuánto vale a?'
+	Escribir 'Siendo tu nÃºmero complejo a + b*j'
+	Escribir 'Â¿CuÃ¡nto vale a?'
 	Leer a
 FinFuncion
 
 Funcion b = consultar_b()
 	// Pregunta la parte imaginaria
-	Escribir '¿Cuánto vale b?'
+	Escribir 'Â¿CuÃ¡nto vale b?'
 	Leer b
 FinFuncion
 
 Funcion modulo = binomica_modulo(a,b)
-	// Calcula el módulo por el teorema de pitágoras
+	// Calcula el mÃ³dulo por el teorema de pitÃ¡goras
 	modulo <- Raiz(a^2+b^2)
 FinFuncion
 
 Funcion angulo = binomica_angulo (a,b,tipo_de_angulo)
-	// Calcula el ángulo a partir según las componentes cartesianas
+	// Calcula el Ã¡ngulo a partir segÃºn las componentes cartesianas
 	angulo <- atan(b/a)
-	// En caso de tener la parte real o imaginaria negativa, suma el ángulo necesario para que el resultado esté en formato de 0°-360°  O  0R - 2piR
+	// En caso de tener la parte real o imaginaria negativa, suma el Ã¡ngulo necesario para que el resultado estÃ© en formato de 0Â°-360Â°  O  0R - 2piR
 	Si a<0 Entonces
 		angulo <- angulo+pi
 	SiNo
@@ -181,37 +181,37 @@ Funcion angulo = binomica_angulo (a,b,tipo_de_angulo)
 			angulo <- angulo+2*pi
 		FinSi
 	FinSi
-	// Si el usuario usa grados, pasa el ángulo de radianes a grados
+	// Si el usuario usa grados, pasa el Ã¡ngulo de radianes a grados
 	Si tipo_de_angulo==2 Entonces
 		angulo <- angulo*180/pi
 	FinSi
 FinFuncion
 
 Funcion escribir_polar(modulo,angulo,tipo_de_angulo)
-	// Escribe el módulo del número complejo
-	Escribir 'Módulo: ',modulo
-	// Escribe el ángulo con la unidad preferida del usuario
+	// Escribe el mÃ³dulo del nÃºmero complejo
+	Escribir 'MÃ³dulo: ',modulo
+	// Escribe el Ã¡ngulo con la unidad preferida del usuario
 	Si tipo_de_angulo==1 Entonces
-		Escribir 'Ángulo: ',angulo,'R'
-		Escribir 'Tu número complejo en forma polar es: ',modulo,' * e^(',angulo,'R * j)'
+		Escribir 'Ãngulo: ',angulo,'R'
+		Escribir 'Tu nÃºmero complejo en forma polar es: ',modulo,' * e^(',angulo,'R * j)'
 	SiNo
-		Escribir 'Ángulo: ',angulo,'°'
-		Escribir 'Tu número complejo en forma polar es: ',modulo,' * e^(',angulo,'° * j)'
+		Escribir 'Ãngulo: ',angulo,'Â°'
+		Escribir 'Tu nÃºmero complejo en forma polar es: ',modulo,' * e^(',angulo,'Â° * j)'
 	FinSi
 FinFuncion
 
 Funcion modulo = consultar_modulo()
-	Escribir '¿Cuál es el módulo de tu número complejo?'
+	Escribir 'Â¿CuÃ¡l es el mÃ³dulo de tu nÃºmero complejo?'
 	Leer modulo
 FinFuncion
 
 Funcion angulo = consultar_angulo()
-	Escribir '¿Cuál es el ángulo de tu número complejo?'
+	Escribir 'Â¿CuÃ¡l es el Ã¡ngulo de tu nÃºmero complejo?'
 	Leer angulo
 FinFuncion
 
 Funcion a = polar_a(modulo,angulo,tipo_de_angulo)
-	// Calcula la parte real, pasando el ángulo a radianes antes en caso de que esté en grados
+	// Calcula la parte real, pasando el Ã¡ngulo a radianes antes en caso de que estÃ© en grados
 	Si tipo_de_angulo==1 Entonces
 		a <- modulo*cos(angulo)
 	SiNo
@@ -220,7 +220,7 @@ Funcion a = polar_a(modulo,angulo,tipo_de_angulo)
 FinFuncion
 
 Funcion b = polar_b(modulo,angulo,tipo_de_angulo)
-	// Calcula la parte imaginaria, pasando el ángulo a radianes antes en caso de que esté en grados
+	// Calcula la parte imaginaria, pasando el Ã¡ngulo a radianes antes en caso de que estÃ© en grados
 	Si tipo_de_angulo==1 Entonces
 		b <- modulo*sen(angulo)
 	SiNo
@@ -231,39 +231,39 @@ FinFuncion
 Funcion escribir_binomica(a,b)
 	Escribir 'Parte real: ',a
 	Escribir 'Parte imaginaria: ',b
-	Escribir 'Tu número complejo es: ',a,' + j*',b
+	Escribir 'Tu nÃºmero complejo es: ',a,' + j*',b
 FinFuncion
 
 Funcion cantidad_suma = consultar_suma()
 	Repetir
-		Escribir '¿Cuántos números complejos vas a sumar?'
+		Escribir 'Â¿CuÃ¡ntos nÃºmeros complejos vas a sumar?'
 		Leer cantidad_suma
-		// En caso de que se quiera sumar menos de dos números, pide introducir la cantidad nuevamente
+		// En caso de que se quiera sumar menos de dos nÃºmeros, pide introducir la cantidad nuevamente
 		Si cantidad_suma<2 Entonces
-			Escribir 'No se puede sumar menos de dos números'
+			Escribir 'No se puede sumar menos de dos nÃºmeros'
 		FinSi
 	Mientras Que cantidad_suma<2
 FinFuncion
 
 Funcion forma_complejo = consultar_forma_complejo(contador)
 	Repetir
-		Escribir 'El ',contador,'° número complejo:'
-		Escribir '¿Está expresado en forma binómica (1) o polar (2)?'
+		Escribir 'El ',contador,'Â° nÃºmero complejo:'
+		Escribir 'Â¿EstÃ¡ expresado en forma binÃ³mica (1) o polar (2)?'
 		Leer forma_complejo
 	Mientras Que forma_complejo<>1 Y forma_complejo<>2
 FinFuncion
 
 Funcion resultado_suma(a,b,tipo_de_angulo)
-	// Pregunta al usuario de qué forma quiere ver el resultado
+	// Pregunta al usuario de quÃ© forma quiere ver el resultado
 	Repetir
-		Escribir '¿Deseas expresar el resultado en forma binómica (1) o polar (2)?'
+		Escribir 'Â¿Deseas expresar el resultado en forma binÃ³mica (1) o polar (2)?'
 		Leer forma_complejo
 	Mientras Que forma_complejo<>1 Y forma_complejo<>2
 	Si forma_complejo==1 Entonces
-		// En caso de que quiera verlo en forma binómica, escribe el resultado directamente
+		// En caso de que quiera verlo en forma binÃ³mica, escribe el resultado directamente
 		escribir_binomica(a,b)
 	SiNo
-		// En caso de que quiera verlo en forma polar, calcula el módulo y ángulo
+		// En caso de que quiera verlo en forma polar, calcula el mÃ³dulo y Ã¡ngulo
 		modulo <- binomica_modulo(a,b)
 		angulo <- binomica_angulo(a,b,tipo_de_angulo)
 		// Escribe el resultado en forma polar
@@ -273,23 +273,23 @@ FinFuncion
 
 Funcion R = consultar_R()
 	Escribir 'Siendo tu impedancia R + J*X'
-	Escribir '¿Cuánto vale R (resistencia)?'
+	Escribir 'Â¿CuÃ¡nto vale R (resistencia)?'
 	Leer R
 FinFuncion
 
 Funcion X = consultar_X()
-	Escribir '¿Cuánto vale X (reactancia)?'
+	Escribir 'Â¿CuÃ¡nto vale X (reactancia)?'
 	Leer X
 FinFuncion
 
 Funcion w = consultar_w()
-	// Pregunta al en qué unidad expresa la frecuencia
+	// Pregunta al en quÃ© unidad expresa la frecuencia
 	Repetir
-		Escribir '¿La frecuencia del circuito está expresada en hertz (1) o en radianes/segundos (2)?'
+		Escribir 'Â¿La frecuencia del circuito estÃ¡ expresada en hertz (1) o en radianes/segundos (2)?'
 		Leer unidad
 	Mientras Que unidad<>1 Y unidad<>2
 	// Pregunta el valor de la frecuencia
-	Escribir '¿Cuál es la frecuencia?'
+	Escribir 'Â¿CuÃ¡l es la frecuencia?'
 	Leer w
 	// En caso de estar en hertz, pasa la frecuencia a radianes/segundos
 	Si unidad=1 Entonces
@@ -327,22 +327,22 @@ Funcion lista_componentes(R,L,C)
 FinFuncion
 
 Funcion modulo_V = consultar_modulo_V()
-	Escribir '¿Cuál es el módulo del fasor de tensión (valor eficaz en volts)?'
+	Escribir 'Â¿CuÃ¡l es el mÃ³dulo del fasor de tensiÃ³n (valor eficaz en volts)?'
 	Leer modulo_V
 FinFuncion
 
 Funcion angulo_V = consultar_angulo_V()
-	Escribir '¿Cuál es el ángulo del fasor de tensión?'
+	Escribir 'Â¿CuÃ¡l es el Ã¡ngulo del fasor de tensiÃ³n?'
 	Leer angulo_V
 FinFuncion
 
 Funcion modulo_I = consultar_modulo_I()
-	Escribir '¿Cuál es el módulo del fasor de corriente (valor eficaz en amperes)?'
+	Escribir 'Â¿CuÃ¡l es el mÃ³dulo del fasor de corriente (valor eficaz en amperes)?'
 	Leer modulo_I
 FinFuncion
 
 Funcion angulo_I = consultar_angulo_I()
-	Escribir '¿Cuál es el ángulo del fasor de corriente?'
+	Escribir 'Â¿CuÃ¡l es el Ã¡ngulo del fasor de corriente?'
 	Leer angulo_I
 FinFuncion
 
@@ -351,11 +351,11 @@ Funcion circuito_sin_componentes(modulo_V,modulo_I)
 		Si modulo_I == 0 Entonces
 			Escribir 'No hay circuito.'
 		SiNo
-			// Si la tensión es 0 y hay corriente, 0/I = 0 = Z; hay un corto
+			// Si la tensiÃ³n es 0 y hay corriente, 0/I = 0 = Z; hay un corto
 			Escribir 'La impedancia es 0. Hay un corto-circuito.'
 		FinSi
 	SiNo
-		// Si hay tensión sin corriente, hay un circuito abierto
+		// Si hay tensiÃ³n sin corriente, hay un circuito abierto
 		Escribir 'La impedancia es infinita. Hay un circuito abierto.'
 	FinSi
 FinFuncion
