@@ -2,32 +2,28 @@
 1) a vale 5
 2) a vale 5
 3) a vale 5
-4) a vale 0.0
+4) a vale 0.000000
 5) a vale ♣ //(depende del sistema)
-//
-13,546(10) = 1101,10001011110001101010(2) = 1,10110001011110001101010*2^3 = 1,10110001011110001101010*2^(10000010-01111111)
-Como está codificado en IEEE 754, el número es 01000001010110001011110001101010 -> 1096334442(10)
-//
-6) b vale 
-7) b vale 
-8) b vale 
-9) b vale 
-10) b vale 
-11) b vale 
-12) b vale 
+6) b vale (basura)
+7) b vale (basura)
+8) b vale 13.546000
+9) b vale 13.5
+10) b vale 13.55
+11) b vale 13.5460
+12) b vale    13.5
 13) b vale 
-14) b vale 
-15) b vale 
-16) c vale 
-17) c vale 
-18) c vale 
-19) c vale 
-20) c vale 
-21) d vale 
-22) d vale 
-23) d vale 
-24) d vale 
-25) d vale 
+14) b vale (basura)
+15) b vale (basura)
+16) c vale 65
+17) c vale 0.000000
+18) c vale A
+19) c vale 101
+20) c vale 41
+21) d vale 97
+22) d vale 0.000000
+23) d vale a
+24) d vale 141
+25) d vale 61
 CÓDIGO PARA COMPROBAR:
 */
 #include <stdio.h>
