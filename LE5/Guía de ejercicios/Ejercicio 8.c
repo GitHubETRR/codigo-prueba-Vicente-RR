@@ -14,4 +14,5 @@ int main()
   printf("3) %i \n", 24 / c * 4);
   printf("4) %i \n", (a / b ) % 2);
   printf("5) %i \n", 48 / (c*2) * 4);
+  return 0;
 }
