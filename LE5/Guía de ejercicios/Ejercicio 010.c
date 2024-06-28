@@ -12,7 +12,7 @@ int main(){
 //Programa 2 (todo mal)
 #include <stdio.h>
 
-int main(void){ //Dejamos main() vacío
+int main(void){
     integer x; //int
     real y; //float/double
     scanf ("%d",y); //Se intenta leer la variable real (que debería ser float o double) como entero. También falta el &
