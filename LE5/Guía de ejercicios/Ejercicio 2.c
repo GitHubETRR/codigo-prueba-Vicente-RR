@@ -60,4 +60,5 @@ int main()
   printf ("d vale %c \n", d);
   printf ("d vale %o \n", d);
   printf ("d vale %X \n", d);
+  return 0;
 }
