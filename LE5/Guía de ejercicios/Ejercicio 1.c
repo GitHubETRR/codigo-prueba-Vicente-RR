@@ -97,4 +97,5 @@ int main()
     printf("%i \n", a);
     s*=5;
     printf("%f \n", s);
+    return 0;
 }
