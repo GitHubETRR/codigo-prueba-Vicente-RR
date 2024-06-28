@@ -31,4 +31,5 @@ int main()
   printf("%c", c);
   scanf ("%f", &c);
   printf("%c", c);
+  return 0;
 }
