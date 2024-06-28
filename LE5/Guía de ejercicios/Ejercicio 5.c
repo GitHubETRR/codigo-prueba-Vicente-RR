@@ -22,4 +22,5 @@ int main()
     printf("%i \n", y);
     z -= a*b;
     printf("%i", z);
+    return 0;
 }
