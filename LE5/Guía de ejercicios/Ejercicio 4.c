@@ -21,6 +21,7 @@ int main()
     signed long int g;
     long double h;
     long bool i;
+    return 0;
 }
 //CÓDIGO 2 PARA COMPROBAR:
 #include <stdio.h>
@@ -32,4 +33,5 @@ int main()
     printf("%d\n", sizeof(unsigned short));
     printf("%d\n", sizeof(signed long));
     printf("%d\n", sizeof(long double));
+    return 0;
 }
