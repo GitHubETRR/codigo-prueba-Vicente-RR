@@ -46,4 +46,5 @@ int main()
   if (yc==y1) printf("c: 1\n");
   if (yc==y2) printf("c: 2\n");
   if (yc==y3) printf("c: 3\n");
+  return 0;
 }
