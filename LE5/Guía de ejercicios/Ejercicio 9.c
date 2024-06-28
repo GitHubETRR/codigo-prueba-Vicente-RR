@@ -19,4 +19,5 @@ int main()
   printf("La división de tus dos números es %f\n", division);
   printf("El promedio de tus dos números es %f\n", promedio);
   printf("El doble producto del primer número menos la mitad del segundo es %f", operacionLarga);
+  return 0;
 }
