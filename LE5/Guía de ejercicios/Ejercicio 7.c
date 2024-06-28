@@ -19,4 +19,5 @@ int main()
   printf("5) %i \n", (8 * 6) / (3 * 4));
   printf("6) %i \n", 1 + 4 * 5 + 8 / 4 + 4);
   printf("7) %i \n", 1 + 4 * 5 - 8 / 4 + 4);
+  return 0;
 }
