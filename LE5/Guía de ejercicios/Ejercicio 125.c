@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 
 #define JUGADORES 2
 #define CASILLEROS 10
@@ -17,22 +18,30 @@
 #define CARACTER_HORIZONTAL '~'
 #define CANTIDAD_DE_BARCOS 5
 #define CARACTERES_NOMBRES_BARCOS 13
+#define TECLA0 '1'
+#define TECLA1 '2'
+#define TAMAÑO_PORTAVIONES 5
+#define TAMAÑO_DESTRUCTOR 3
+#define TAMAÑO_PATRULLERO 2
 
-void vaciarTablero(int[JUGADORES][CASILLEROS][CASILLEROS]);
-void imprimirTablero(int[JUGADORES][CASILLEROS][CASILLEROS],int);
-void armarTablero(int[JUGADORES][CASILLEROS][CASILLEROS],int);
+void VaciarTablero(int[JUGADORES][CASILLEROS][CASILLEROS]);
+void ImprimirTablero(int[JUGADORES][CASILLEROS][CASILLEROS],int);
+void ArmarTablero(int[JUGADORES][CASILLEROS][CASILLEROS],int);
+char PedirDireccion(char[CANTIDAD_DE_BARCOS][CARACTERES_NOMBRES_BARCOS], int);
+char Respuesta(void);
+void PedirCoordenadas(char);
 
 int main()
 {
     int tablero[JUGADORES][CASILLEROS][CASILLEROS];
     
-    vaciarTablero(tablero);
-    imprimirTablero(tablero,0);
+    VaciarTablero(tablero);
+    ImprimirTablero(tablero,0);
     
     return 0;
 }
 
-void vaciarTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS])
+void VaciarTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS])
 {
     for (int jugador=0; jugador<JUGADORES; jugador++)
     {
@@ -46,7 +55,7 @@ void vaciarTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS])
     }
 }
 
-void imprimirTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS], int jugador)
+void ImprimirTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS], int jugador)
 {
     printf(" |0|1|2|3|4|5|6|7|8|9");
     for (int fila=0; fila<CASILLEROS; fila++)
@@ -67,11 +76,64 @@ void imprimirTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS], int jugador
     }
 }
 
-void armarTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS], int jugador)
+void ArmarTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS], int jugador)
 {
     char nombreBarco[CANTIDAD_DE_BARCOS][CARACTERES_NOMBRES_BARCOS] = {"PORTAVIONES","DESTRUCTOR A","DESTRUCTOR B","PATRULLERO A","PATRULLERO_B"};
+    
     for (int barco=0; barco<CANTIDAD_DE_BARCOS; barco++)
     {
+        char direccion;
+        int coordenadas[2];
         
+        direccion = PedirDireccion(nombreBarco, barco);
+        PedirCoordenadas(direccion, coordenadas);
+        
+    }
+}
+
+char PedirDireccion(char nombreBarco[CANTIDAD_DE_BARCOS][CARACTERES_NOMBRES_BARCOS], int barco)
+{
+    char direccion;
+    int casillerosBarco;
+    
+    if ((barco+1)==PORTAVIONES) casillerosBarco=TAMAÑO_PORTAVIONES;
+    if (((barco+1)==DESTRUCTOR_A)||((barco+1)==DESTRUCTOR_B)) casillerosBarco=TAMAÑO_DESTRUCTOR;
+    if (((barco+1)==PATRULLERO_A)||((barco+1)==PATRULLERO_B)) casillerosBarco=TAMAÑO_PATRULLERO;
+    printf("¿Deseás colocar el %s (de %i casilleros) en vertical (%c) u horizontal (%c)?\n", nombreBarco[barco], casillerosBarco, TECLA0, TECLA1);
+    direccion = Respuesta();
+    
+    return direccion;
+}
+
+char Respuesta(void)
+{
+    char respuesta;
+    
+    scanf("%c", respuesta);
+    while ((respuesta!=TECLA0)&&(respuesta!=TECLA1))
+    {
+        printf("Por favor, introducí una respuesta válida\n");
+        scanf(" %c", respuesta);
+    }
+    
+    return respuesta;
+}
+
+void PedirCoordenadas(char direccion, int coordenadas[2])
+{
+    printf("Enviá la columna junto con la fila en la que vas a colocar el casillero ");
+    if (direccion==TECLA0) printf("superior");
+    else printf("izquierdo");
+    printf(". Por ejemplo, enviar 47 significa columna 4 fila 7\n");
+    RespuestaCoordenadas(coordenadas);
+}
+
+void RespuestaCoordenadas(int coordenadas[2])
+{
+    scanf("%1i%1i", coordenadas[0], coordenadas[1]);
+    while ((coordenadas[0]<0)||(coordenadas[0]>=CASILLEROS)||(coordenadas[1]<0)||(coordenadas[1]>=CASILLEROS))
+    {
+        printf("Por favor, introducí una respuesta válida\n");
+        scanf(" %1i%1i", coordenadas[0], coordenadas[1]);
     }
 }
