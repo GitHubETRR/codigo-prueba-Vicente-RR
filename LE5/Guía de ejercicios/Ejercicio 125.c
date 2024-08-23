@@ -26,7 +26,7 @@
 
 void VaciarTablero(int[JUGADORES][CASILLEROS][CASILLEROS]);
 void ImprimirTablero(int[JUGADORES][CASILLEROS][CASILLEROS],int);
-void ArmarTablero(int[JUGADORES][CASILLEROS][CASILLEROS],int);
+void ArmarTablero(int[JUGADORES][CASILLEROS][CASILLEROS],int,bool);
 char PedirDireccion(char[CANTIDAD_DE_BARCOS][CARACTERES_NOMBRES_BARCOS], int);
 char Respuesta(void);
 void PedirCoordenadas(char);
@@ -36,7 +36,7 @@ int main()
     int tablero[JUGADORES][CASILLEROS][CASILLEROS];
     
     VaciarTablero(tablero);
-    ImprimirTablero(tablero,0);
+    
     
     return 0;
 }
@@ -55,7 +55,7 @@ void VaciarTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS])
     }
 }
 
-void ImprimirTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS], int jugador)
+void ImprimirTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS], int jugador, bool mostrarBarcos)
 {
     printf(" |0|1|2|3|4|5|6|7|8|9");
     for (int fila=0; fila<CASILLEROS; fila++)
@@ -66,11 +66,18 @@ void ImprimirTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS], int jugador
         {
             int c=tablero[jugador][columna][fila];
             char caracterCasillero;
-            if ((c==AGUA)||(c==PORTAVIONES)||(c==DESTRUCTOR_A)||(c==DESTRUCTOR_B)||(c==PATRULLERO_A)||(c==PATRULLERO_B)) caracterCasillero=' ';
-            if (c==(DISPARO+AGUA)) caracterCasillero=CARACTER_AGUA;
-            if ((c>(DISPARO+AGUA))&&(c<BAJADO_VERTICAL)) caracterCasillero=CARACTER_DISPARO;
-            if (c==BAJADO_VERTICAL) caracterCasillero=CARACTER_VERTICAL;
-            if (c==BAJADO_HORIZONTAL) caracterCasillero=CARACTER_HORIZONTAL;
+            if (c==AGUA) caracterCasillero=' ';
+            if (mostrarBarcos)
+            {
+                if ((c==PORTAVIONES)||(c==DESTRUCTOR_A)||(c==DESTRUCTOR_B)||(c==PATRULLERO_A)||(c==PATRULLERO_B)) caracterCasillero=CARACTER_DISPARO;
+            }
+            else
+            {
+                if (c==(DISPARO+AGUA)) caracterCasillero=CARACTER_AGUA;
+                if ((c>(DISPARO+AGUA))&&(c<BAJADO_VERTICAL)) caracterCasillero=CARACTER_DISPARO;
+                if (c==BAJADO_VERTICAL) caracterCasillero=CARACTER_VERTICAL;
+                if (c==BAJADO_HORIZONTAL) caracterCasillero=CARACTER_HORIZONTAL;
+            }
             printf("|%c",caracterCasillero);
         }
     }
@@ -78,16 +85,19 @@ void ImprimirTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS], int jugador
 
 void ArmarTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS], int jugador)
 {
-    char nombreBarco[CANTIDAD_DE_BARCOS][CARACTERES_NOMBRES_BARCOS] = {"PORTAVIONES","DESTRUCTOR A","DESTRUCTOR B","PATRULLERO A","PATRULLERO_B"};
+    const char nombreBarco[CANTIDAD_DE_BARCOS][CARACTERES_NOMBRES_BARCOS] = {"PORTAVIONES","DESTRUCTOR A","DESTRUCTOR B","PATRULLERO A","PATRULLERO_B"};
     
-    for (int barco=0; barco<CANTIDAD_DE_BARCOS; barco++)
+    for (int jugador=0; jugador<JUGADORES; jugador++)
     {
-        char direccion;
-        int coordenadas[2];
-        
-        direccion = PedirDireccion(nombreBarco, barco);
-        PedirCoordenadas(direccion, coordenadas);
-        
+        for (int barco=0; barco<CANTIDAD_DE_BARCOS; barco++)
+        {
+            char direccion;
+            int coordenadas[2];
+            
+            direccion = PedirDireccion(nombreBarco, barco);
+            PedirCoordenadas(direccion, coordenadas);
+            
+        }
     }
 }
 
@@ -110,10 +120,12 @@ char Respuesta(void)
     char respuesta;
     
     scanf("%c", respuesta);
+    fflush(stdin);
     while ((respuesta!=TECLA0)&&(respuesta!=TECLA1))
     {
         printf("Por favor, introducí una respuesta válida\n");
-        scanf(" %c", respuesta);
+        scanf("%c", respuesta);
+        fflush(stdin);
     }
     
     return respuesta;
@@ -130,10 +142,24 @@ void PedirCoordenadas(char direccion, int coordenadas[2])
 
 void RespuestaCoordenadas(int coordenadas[2])
 {
-    scanf("%1i%1i", coordenadas[0], coordenadas[1]);
+    bool coordenadasValidas;
+    
+    coordenadasValidas = ComprobarCoordenadas(coordenadas);
     while ((coordenadas[0]<0)||(coordenadas[0]>=CASILLEROS)||(coordenadas[1]<0)||(coordenadas[1]>=CASILLEROS))
     {
         printf("Por favor, introducí una respuesta válida\n");
-        scanf(" %1i%1i", coordenadas[0], coordenadas[1]);
+        coordenadasValidas = ComprobarCoordenadas(coordenadas);
     }
+}
+
+bool ComprobarCoordenadas(int coordenadas[2])
+{
+    bool coordenadasValidas=true;
+    
+    scanf("%1i%1i", coordenadas[0], coordenadas[1]);
+    fflush(stdin);
+    if ((coordenadas[0]<0)||(coordenadas[0]>=CASILLEROS)||(coordenadas[1]<0)||(coordenadas[1]>=CASILLEROS)) //Agregar casilleros adyacentes
+    coordenadasValidas=false;
+    
+    return coordenadasValidas;
 }
