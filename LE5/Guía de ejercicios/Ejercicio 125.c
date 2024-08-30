@@ -89,13 +89,14 @@ void ArmarTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS], int jugador)
     
     for (int jugador=0; jugador<JUGADORES; jugador++)
     {
-        for (int barco=0; barco<CANTIDAD_DE_BARCOS; barco++)
+        for (int barco=1; barco<(CANTIDAD_DE_BARCOS+1); barco++)
         {
             char direccion;
-            int coordenadas[2];
+            int columna;
+            int fila;
             
             direccion = PedirDireccion(nombreBarco, barco);
-            PedirCoordenadas(direccion, coordenadas);
+            PedirCoordenadas(barco, tablero, direccion, columna, fila, direccion);
             
         }
     }
@@ -104,15 +105,23 @@ void ArmarTablero(int tablero[JUGADORES][CASILLEROS][CASILLEROS], int jugador)
 char PedirDireccion(char nombreBarco[CANTIDAD_DE_BARCOS][CARACTERES_NOMBRES_BARCOS], int barco)
 {
     char direccion;
-    int casillerosBarco;
+    int casillerosBarco = TamañoBarco(barco);
     
-    if ((barco+1)==PORTAVIONES) casillerosBarco=TAMAÑO_PORTAVIONES;
-    if (((barco+1)==DESTRUCTOR_A)||((barco+1)==DESTRUCTOR_B)) casillerosBarco=TAMAÑO_DESTRUCTOR;
-    if (((barco+1)==PATRULLERO_A)||((barco+1)==PATRULLERO_B)) casillerosBarco=TAMAÑO_PATRULLERO;
     printf("¿Deseás colocar el %s (de %i casilleros) en vertical (%c) u horizontal (%c)?\n", nombreBarco[barco], casillerosBarco, TECLA0, TECLA1);
     direccion = Respuesta();
     
     return direccion;
+}
+
+int TamañoBarco(barco)
+{
+    int casillerosBarco;
+    
+    if ((barco)==PORTAVIONES) casillerosBarco=TAMAÑO_PORTAVIONES;
+    if (((barco)==DESTRUCTOR_A)||((barco)==DESTRUCTOR_B)) casillerosBarco=TAMAÑO_DESTRUCTOR;
+    if (((barco)==PATRULLERO_A)||((barco)==PATRULLERO_B)) casillerosBarco=TAMAÑO_PATRULLERO;
+
+    return casillerosBarco;
 }
 
 char Respuesta(void)
@@ -131,35 +140,45 @@ char Respuesta(void)
     return respuesta;
 }
 
-void PedirCoordenadas(char direccion, int coordenadas[2])
+void PedirCoordenadas(int barco, int tablero[JUGADORES][CASILLEROS][CASILLEROS], char direccion, int columna, int fila, char direccion)
 {
     printf("Enviá la columna junto con la fila en la que vas a colocar el casillero ");
     if (direccion==TECLA0) printf("superior");
     else printf("izquierdo");
     printf(". Por ejemplo, enviar 47 significa columna 4 fila 7\n");
-    RespuestaCoordenadas(coordenadas);
+    RespuestaCoordenadas(barco, tablero, columna, fila, direccion);
 }
 
-void RespuestaCoordenadas(int coordenadas[2])
+void RespuestaCoordenadas(int barco, int tablero[JUGADORES][CASILLEROS][CASILLEROS], int columna, int fila, char direccion)
 {
     bool coordenadasValidas;
     
-    coordenadasValidas = ComprobarCoordenadas(coordenadas);
-    while ((coordenadas[0]<0)||(coordenadas[0]>=CASILLEROS)||(coordenadas[1]<0)||(coordenadas[1]>=CASILLEROS))
+    coordenadasValidas = ComprobarCoordenadas(barco, tablero, columna, fila, direccion);
+    while (!(coordenadasValidas))
     {
         printf("Por favor, introducí una respuesta válida\n");
-        coordenadasValidas = ComprobarCoordenadas(coordenadas);
+        coordenadasValidas = ComprobarCoordenadas(barco, tablero, columna, fila, direccion);
     }
 }
 
-bool ComprobarCoordenadas(int coordenadas[2])
+bool ComprobarCoordenadas(int barco, int tablero[JUGADORES][CASILLEROS][CASILLEROS], int columna, int fila, char direccion)
 {
     bool coordenadasValidas=true;
+    int casillerosBarco = TamañoBarco(barco);
     
-    scanf("%1i%1i", coordenadas[0], coordenadas[1]);
+    scanf("%1i%1i", columna, fila);
     fflush(stdin);
-    if ((coordenadas[0]<0)||(coordenadas[0]>=CASILLEROS)||(coordenadas[1]<0)||(coordenadas[1]>=CASILLEROS)) //Agregar casilleros adyacentes
+    if ((columna<0)||(columna>=CASILLEROS)||(fila<0)||(fila>=CASILLEROS))
     coordenadasValidas=false;
+    //Agregar casilleros adyacentes con un for
+    if (direccion==TECLA0) //Vertical
+    {
+        
+    }
+    if (direccion==TECLA1) //Horizontal
+    {
+        
+    }
     
     return coordenadasValidas;
 }
