@@ -27,6 +27,7 @@
 #define TAMAÑO_DESTRUCTOR 3
 #define TAMAÑO_PATRULLERO 2
 
+
 int JugarPartida(int[JUGADORES][CASILLEROS][CASILLEROS]);
 void VaciarTablero(int[JUGADORES][CASILLEROS][CASILLEROS]);
 void ImprimirTablero(int[JUGADORES][CASILLEROS][CASILLEROS], int, bool);
@@ -100,7 +101,7 @@ bool AnunciarGanador(int ganador)
     bool jugarDeNuevo;
     
     printf("GANADOR: JUGADOR %i\n", ganador);
-    printf("Enviá %c para jugar de nuevo", TECLA0);
+    printf("Enviá %c para jugar de nuevo\n", TECLA0);
     scanf("%c", &respuesta);
     LimpiarTeclado();
     jugarDeNuevo = (respuesta==TECLA0)?true:false;
@@ -119,7 +120,7 @@ void Atacar(int atacante, int tablero[JUGADORES][CASILLEROS][CASILLEROS])
     
     printf("JUGADOR %i\n", atacante);
     printf("Enviá la columna junto con la fila en la que vas a disparar\n");
-    coordenadasValidas = ComprobarCoordenadasAtaque(atacante, coordenadas, tablero);
+    coordenadasValidas = ComprobarCoordenadasAtaque(atacado, coordenadas, tablero);
     while (!(coordenadasValidas))
     {
         printf("Por favor, introducí una respuesta válida\n");
@@ -147,9 +148,9 @@ void VerificarBarcoDerribado(int atacado, int coordenadas[2], int tablero[JUGADO
     tablero[atacado][coordenadas[0]][coordenadas[1]]+=DISPARO;
     if (barcoDerribado!=AGUA)
     {
-        for (int columna; columna<CASILLEROS; columna++)
+        for (int columna=0; columna<CASILLEROS; columna++)
         {
-            for (int fila; fila<CASILLEROS; fila++)
+            for (int fila=0; fila<CASILLEROS; fila++)
             {
                 if (tablero[atacado][columna][fila]==barcoDerribado) barcoDerribado=0; //Quedan partes del barco por disparar
             }
@@ -161,10 +162,12 @@ void VerificarBarcoDerribado(int atacado, int coordenadas[2], int tablero[JUGADO
 void DerribarBarco(int barcoDerribado, int atacado, int tablero[JUGADORES][CASILLEROS][CASILLEROS])
 {
     int direccion=0; //0 = no definida
+    const char nombreBarco[CANTIDAD_DE_BARCOS][CARACTERES_NOMBRES_BARCOS] = {"PORTAVIONES","DESTRUCTOR A","DESTRUCTOR B","PATRULLERO A","PATRULLERO B"};
     
-    for (int columna; columna<CASILLEROS; columna++)
+    printf("Derribaste el %s\n\n", nombreBarco[barcoDerribado-1]);
+    for (int columna=0; columna<CASILLEROS; columna++)
     {
-        for (int fila; fila<CASILLEROS; fila++)
+        for (int fila=0; fila<CASILLEROS; fila++)
         {
             if (tablero[atacado][columna][fila]==(barcoDerribado+DISPARO))
             {
@@ -200,7 +203,7 @@ int VerificarGanador(int tablero[JUGADORES][CASILLEROS][CASILLEROS])
     {
         bool ganador = TableroVacio(jugador, tablero);
         
-        if (ganador) jugadorGanador=jugador;
+        if (ganador) jugadorGanador = (jugador==0)?1:0;
     }
     
     return jugadorGanador;
