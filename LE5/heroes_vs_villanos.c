@@ -4,6 +4,7 @@
 #define MAX_CARACTERES_NOMBRE 30
 #define MAX_CARACTERES_PRESENTACION 1000
 #define CANTIDAD_ESTADISTICAS 5
+#define CANTIDAD_MOVIMIENTOS 6
 
 #define MIN_AUMENTO_ESTADISTICAS -6
 #define MAX_AUMENTO_ESTADISTICAS 6
@@ -13,7 +14,18 @@
 #define DEFENSA_ESPECIAL 3
 #define VELOCIDAD 4
 
+typedef enum{
+    INGRESAR=1,
+    MOSTRAR,
+    ELIMINAR,
+    EDITAR,
+    GUARDAR,
+    SALIR
+}opciones_t;
+
 typedef struct {
+    char nombre[MAX_CARACTERES_NOMBRE];
+
 	int potencia;
 	int potenciaEspecial;
 
@@ -21,11 +33,11 @@ typedef struct {
 	int aumentoEstadisticas[CANTIDAD_ESTADISTICAS];
 
 	int usos;
+	int usosMaximos;
 } movimiento_t;
 
-
-typedef struct {
-	char nombre[MAX_CARACTERES_NOMBRE];
+typedef struct personaje{
+    char nombre[MAX_CARACTERES_NOMBRE];
 	char presentacion[MAX_CARACTERES_PRESENTACION];
 	
 	int salud;
@@ -38,14 +50,22 @@ typedef struct {
 	int velocidad;
 	int aumentoEstadisticas[CANTIDAD_ESTADISTICAS];
 	
-	movimiento_t ataque1;
-	movimiento_t ataque2;
-	movimiento_t ataque3;
-	movimiento_t defensa1;
-	movimiento_t defensa2;
-	movimiento_t defensa3;
+	movimiento_t movimiento[CANTIDAD_MOVIMIENTOS];
+
+    struct personaje * next;
 } personaje_t;
 
+personaje_t *_5TEL=NULL;
+
+//MENÚ
+void MostrarLista(void);
+void ImprimirPersonaje(personaje_t * personaje);
+void IngresarPersonaje(void);
+void Menu(void);
+void LiberarMemoria(void);
+void LimpiarPantalla(void);
+
+//JUEGO
 void Turno(personaje_t personajes[2], movimiento_t movimientos[2]);
 int CompararVelocidades(personaje_t personajes[2]);
 void Atacar(personaje_t personajes[2], int personajeTurno, movimiento_t movimientos[2]);
@@ -53,9 +73,151 @@ void CalcularMultiplicadores(personaje_t personajes[2], float multiplicador[CANT
 void AumentarEstadisticas(personaje_t personajes[2], int personajeTurno, movimiento_t movimientos[2]);
 void AumentarSalud(personaje_t personajes[2], int personajeTurno, movimiento_t movimientos[2]);
 
-int main()
+int main (void){
+    Menu();
+    LiberarMemoria();
+    return 0;
+}
+
+void Menu (void){
+    opciones_t op;
+    do{
+        printf("Menu\n");
+        printf("1_Ingresar un personaje\n");
+        printf("2_Mostrar toda la lista\n");
+        printf("3_Eliminar un personaje\n");
+        printf("4_Editar un personaje\n");
+        printf("5_Guardar los personajes\n");
+        printf("6_Salir\n");
+        scanf("%d", &op);
+        switch (op){
+            case INGRESAR:
+                 IngresarPersonaje();
+                break;
+            case MOSTRAR:
+                 MostrarLista();
+                break;
+            case ELIMINAR:
+
+                break;
+            case EDITAR:
+                break;
+            case GUARDAR:
+                break;
+
+        }   
+    }while(op!=SALIR);
+}
+
+void ImprimirPersonaje(personaje_t * personaje){
+    printf("\n--------------------\n");
+    printf("Nombre: %s\n",personaje->nombre);
+    printf("Presentación: %s\n",personaje->presentacion);
+    printf("\nESTADÍSTICAS:\n");
+    printf("Salud: %i\n",personaje->saludMaxima);
+    printf("Ataque: %i\n",personaje->ataque);
+    printf("Ataque Especial: %i\n",personaje->ataqueEspecial);
+    printf("Defensa: %i\n",personaje->defensa);
+    printf("Defensa Especial: %i\n",personaje->defensaEspecial);
+    printf("Velocidad: %i\n",personaje->velocidad);
+    for (int i=0; i<CANTIDAD_MOVIMIENTOS; i++)
+    {
+        printf("-\n");
+        printf("Movimiento %i: %s\n", (i+1), personaje->movimiento[i].nombre);
+        printf("Potencia / Potencia Especial: %i / %i\n", personaje->movimiento[i].potencia, personaje->movimiento[i].potenciaEspecial);
+        printf("Aumento de SALUD / ATAQUE / ATAQUE ESPECIAL / DEFENSA / DEFENSA ESPECIAL / VELOCIDAD: %.2f / %i / %i / %i / %i / %i\n", personaje->movimiento[i].aumentoSalud, personaje->movimiento[i].aumentoEstadisticas[ATAQUE], personaje->movimiento[i].aumentoEstadisticas[ATAQUE_ESPECIAL], personaje->movimiento[i].aumentoEstadisticas[DEFENSA], personaje->movimiento[i].aumentoEstadisticas[DEFENSA_ESPECIAL], personaje->movimiento[i].aumentoEstadisticas[VELOCIDAD]);
+        printf("Usos: %i\n", personaje->movimiento[i].usosMaximos);
+    }
+    printf("--------------------\n");
+}
+
+void IngresarPersonaje(void){
+    personaje_t * personaje_ptr= (personaje_t *)malloc(sizeof(personaje_t));
+    if(personaje_ptr==NULL){
+        printf("Out of Memory");
+        exit(1);
+    }
+
+    printf("Nombre: ");
+    scanf("%s",personaje_ptr->nombre);
+    printf("Presentación: ");
+    scanf("%s",personaje_ptr->presentacion);
+    printf("Salud máxima: ");
+    scanf("%i",&personaje_ptr->saludMaxima);
+    printf("Ataque: ");
+    scanf("%i",&personaje_ptr->ataque);
+    printf("Ataque especial: ");
+    scanf("%i",&personaje_ptr->ataqueEspecial);
+    printf("Defensa: ");
+    scanf("%i",&personaje_ptr->defensa);
+    printf("Defensa especial: ");
+    scanf("%i",&personaje_ptr->defensaEspecial);
+    printf("Velocidad: ");
+    scanf("%i",&personaje_ptr->velocidad);
+    for (int i=0; i<CANTIDAD_MOVIMIENTOS; i++)
+    {
+        printf("-\n");
+        printf("MOVIMIENTO %i: %s\n", (i+1), personaje_ptr->movimiento[i].nombre);
+        printf("Nombre: ");
+        scanf("%s",personaje_ptr->movimiento[i].nombre);
+        printf("Potencia: ");
+        scanf("%i",&personaje_ptr->movimiento[i].potencia);
+        printf("Potencia especial: ");
+        scanf("%i",&personaje_ptr->movimiento[i].potenciaEspecial);
+        printf("Aumento de salud: ");
+        scanf("%f",&personaje_ptr->movimiento[i].aumentoSalud);
+        printf("Aumento de ataque: ");
+        scanf("%i",&personaje_ptr->movimiento[i].aumentoEstadisticas[ATAQUE]);
+        printf("Aumento de ataque especial: ");
+        scanf("%i",&personaje_ptr->movimiento[i].aumentoEstadisticas[ATAQUE_ESPECIAL]);
+        printf("Aumento de defensa: ");
+        scanf("%i",&personaje_ptr->movimiento[i].aumentoEstadisticas[DEFENSA]);
+        printf("Aumento de defensa especial: ");
+        scanf("%i",&personaje_ptr->movimiento[i].aumentoEstadisticas[DEFENSA_ESPECIAL]);
+        printf("Aumento de velocidad: ");
+        scanf("%i",&personaje_ptr->movimiento[i].aumentoEstadisticas[VELOCIDAD]);
+        printf("Usos: ");
+        scanf("%i",&personaje_ptr->movimiento[i].usosMaximos);
+    }
+
+    personaje_ptr->next=NULL;
+    printf("\n");
+    if(_5TEL==NULL){
+        _5TEL=personaje_ptr;
+    }
+    else{
+        personaje_ptr->next=_5TEL;
+        _5TEL=personaje_ptr;
+    }
+
+}
+
+void MostrarLista(void){
+    personaje_t * lista_personajes=_5TEL;
+    while(lista_personajes!=NULL){
+        ImprimirPersonaje(lista_personajes);
+        lista_personajes=lista_personajes->next;
+    }
+}
+
+void LiberarMemoria(void){
+    personaje_t * lista_personajes=_5TEL;
+
+    while(_5TEL!=NULL){
+        free(lista_personajes);
+        _5TEL=_5TEL->next;
+        lista_personajes=_5TEL;
+    }
+}
+
+void LimpiarPantalla()
 {
-	return 0;
+    // Detectar el sistema operativo
+    #ifdef _WIN32
+        system("cls"); // Limpiar pantalla en Windows
+    #else
+        system("clear"); // Limpiar pantalla en Unix/Linux
+    #endif
 }
 
 void Turno(personaje_t personajes[2], movimiento_t movimientos[2]) //Se almacena el nuevo estado de ambos personajes en un vector temporalmente para poder devolver ambos
