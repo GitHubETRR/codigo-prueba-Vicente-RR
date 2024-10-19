@@ -38,6 +38,7 @@ typedef struct {
 } movimiento_t;
 
 typedef struct personaje {
+    int id;
     char nombre[MAX_CARACTERES_NOMBRE];
 	char presentacion[MAX_CARACTERES_PRESENTACION];
 	
@@ -61,10 +62,12 @@ personaje_t *lista_personajes=NULL;
 //MENÚ
 void LeerDatos(void);
 void Menu(void);
-void MostrarLista(void);
-void ImprimirPersonaje(personaje_t * personaje);
+void OrdenarID(void);
 void IngresarPersonaje(void);
+void ImprimirPersonaje(personaje_t * personaje);
+void MostrarLista(void);
 void LiberarMemoria(void);
+void LimpiarTeclado(void);
 void LimpiarPantalla(void);
 
 //JUEGO
@@ -120,6 +123,7 @@ void LeerDatos(void)
         }
     }while(!salir);
     fclose(fp);
+    OrdenarID();
 }
 
 void Menu(void)
@@ -135,6 +139,8 @@ void Menu(void)
         printf("5_Guardar los personajes\n");
         printf("6_Salir\n");
         scanf("%d", &op);
+        LimpiarTeclado();
+        LimpiarPantalla();
         switch (op)
         {
             case INGRESAR:
@@ -151,31 +157,25 @@ void Menu(void)
             case GUARDAR:
                 break;
 
-        }   
+        }
+        printf("Presione enter para continuar\n");
+        fflush(stdin);
+        getchar();
+        LimpiarTeclado();
+        LimpiarPantalla();
     }while(op!=SALIR);
 }
 
-void ImprimirPersonaje(personaje_t * personaje)
+void OrdenarID(void)
 {
-    printf("\n--------------------\n");
-    printf("Nombre: %s\n",personaje->nombre);
-    printf("Presentación: %s\n",personaje->presentacion);
-    printf("\nESTADÍSTICAS:\n");
-    printf("Salud: %i\n",personaje->saludMaxima);
-    printf("Ataque: %i\n",personaje->ataque);
-    printf("Ataque Especial: %i\n",personaje->ataqueEspecial);
-    printf("Defensa: %i\n",personaje->defensa);
-    printf("Defensa Especial: %i\n",personaje->defensaEspecial);
-    printf("Velocidad: %i\n",personaje->velocidad);
-    for (int i=0; i<CANTIDAD_MOVIMIENTOS; i++)
+    personaje_t * lista=lista_personajes;
+    int id=1;
+    while (lista!=NULL)
     {
-        printf("-\n");
-        printf("Movimiento %i: %s\n", (i+1), personaje->movimiento[i].nombre);
-        printf("Potencia / Potencia Especial: %i / %i\n", personaje->movimiento[i].potencia, personaje->movimiento[i].potenciaEspecial);
-        printf("Aumento de SALUD / ATAQUE / ATAQUE ESPECIAL / DEFENSA / DEFENSA ESPECIAL / VELOCIDAD: %.2f / %i / %i / %i / %i / %i\n", personaje->movimiento[i].aumentoSalud, personaje->movimiento[i].aumentoEstadisticas[ATAQUE], personaje->movimiento[i].aumentoEstadisticas[ATAQUE_ESPECIAL], personaje->movimiento[i].aumentoEstadisticas[DEFENSA], personaje->movimiento[i].aumentoEstadisticas[DEFENSA_ESPECIAL], personaje->movimiento[i].aumentoEstadisticas[VELOCIDAD]);
-        printf("Usos: %i\n", personaje->movimiento[i].usosMaximos);
+        lista->id=id;
+        lista=lista->next;
+        id++;
     }
-    printf("--------------------\n");
 }
 
 void IngresarPersonaje(void)
@@ -188,9 +188,11 @@ void IngresarPersonaje(void)
     }
 
     printf("Nombre: ");
-    scanf("%s",personaje_ptr->nombre);
+    //scanf("%s",personaje_ptr->nombre);
+    fgets(personaje_ptr->nombre, sizeof(personaje_ptr->nombre), stdin); //fgets permite incluir espacios
     printf("Presentación: ");
-    scanf("%s",personaje_ptr->presentacion);
+    //scanf("%s",personaje_ptr->presentacion);
+    fgets(personaje_ptr->presentacion, sizeof(personaje_ptr->presentacion), stdin);
     printf("Salud máxima: ");
     scanf("%i",&personaje_ptr->saludMaxima);
     printf("Ataque: ");
@@ -208,7 +210,8 @@ void IngresarPersonaje(void)
         printf("-\n");
         printf("MOVIMIENTO %i: %s\n", (i+1), personaje_ptr->movimiento[i].nombre);
         printf("Nombre: ");
-        scanf("%s",personaje_ptr->movimiento[i].nombre);
+        //scanf("%s",personaje_ptr->movimiento[i].nombre);
+        fgets(personaje_ptr->movimiento[i].nombre, sizeof(personaje_ptr->movimiento[i].nombre), stdin);
         printf("Potencia: ");
         scanf("%i",&personaje_ptr->movimiento[i].potencia);
         printf("Potencia especial: ");
@@ -229,40 +232,70 @@ void IngresarPersonaje(void)
         scanf("%i",&personaje_ptr->movimiento[i].usosMaximos);
     }
 
-    personaje_ptr->next=NULL;
     printf("\n");
+    //Coloca al nuevo personaje al final de la fila
+    personaje_ptr->next=NULL;
     if(lista_personajes==NULL)
     {
         lista_personajes=personaje_ptr;
     }
     else
     {
-        personaje_ptr->next=lista_personajes;
-        lista_personajes=personaje_ptr;
+        lista_personajes->next=personaje_ptr;
     }
+    OrdenarID();
+}
 
+void ImprimirPersonaje(personaje_t * personaje)
+{
+    printf("\n--------------------\n");
+    printf("ID: %i\n",personaje->id);
+    printf("Nombre: %s\n",personaje->nombre);
+    printf("Presentación: %s\n",personaje->presentacion);
+    printf("\nESTADÍSTICAS:\n");
+    printf("Salud: %i\n",personaje->saludMaxima);
+    printf("Ataque: %i\n",personaje->ataque);
+    printf("Ataque Especial: %i\n",personaje->ataqueEspecial);
+    printf("Defensa: %i\n",personaje->defensa);
+    printf("Defensa Especial: %i\n",personaje->defensaEspecial);
+    printf("Velocidad: %i\n",personaje->velocidad);
+    for (int i=0; i<CANTIDAD_MOVIMIENTOS; i++)
+    {
+        printf("-\n");
+        printf("Movimiento %i: %s\n", (i+1), personaje->movimiento[i].nombre);
+        printf("Potencia / Potencia Especial: %i / %i\n", personaje->movimiento[i].potencia, personaje->movimiento[i].potenciaEspecial);
+        printf("Aumento de SALUD / ATAQUE / ATAQUE ESPECIAL / DEFENSA / DEFENSA ESPECIAL / VELOCIDAD: %.2f / %i / %i / %i / %i / %i\n", personaje->movimiento[i].aumentoSalud, personaje->movimiento[i].aumentoEstadisticas[ATAQUE], personaje->movimiento[i].aumentoEstadisticas[ATAQUE_ESPECIAL], personaje->movimiento[i].aumentoEstadisticas[DEFENSA], personaje->movimiento[i].aumentoEstadisticas[DEFENSA_ESPECIAL], personaje->movimiento[i].aumentoEstadisticas[VELOCIDAD]);
+        printf("Usos: %i\n", personaje->movimiento[i].usosMaximos);
+    }
+    printf("--------------------\n");
 }
 
 void MostrarLista(void)
 {
-    personaje_t * lista_personajes=lista_personajes;
-    while(lista_personajes!=NULL)
+    personaje_t * lista=lista_personajes;
+    while(lista!=NULL)
     {
-        ImprimirPersonaje(lista_personajes);
-        lista_personajes=lista_personajes->next;
+        ImprimirPersonaje(lista);
+        lista=lista->next;
     }
 }
 
 void LiberarMemoria(void)
 {
-    personaje_t * lista_personajes=lista_personajes;
+    personaje_t * lista=lista_personajes;
 
-    while(lista_personajes!=NULL)
+    while(lista!=NULL)
     {
+        lista=lista_personajes->next; //lista apunta al next del que se guarda en lista_personajes, de modo que no se pierda
         free(lista_personajes);
-        lista_personajes=lista_personajes->next;
-        lista_personajes=lista_personajes;
+        lista_personajes=lista;
     }
+}
+
+void LimpiarTeclado()
+{
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 }
 
 void LimpiarPantalla()
