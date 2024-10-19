@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #define MAX_CARACTERES_NOMBRE 30
 #define MAX_CARACTERES_PRESENTACION 1000
 #define CANTIDAD_ESTADISTICAS 5
@@ -14,7 +15,7 @@
 #define DEFENSA_ESPECIAL 3
 #define VELOCIDAD 4
 
-typedef enum{
+typedef enum {
     INGRESAR=1,
     MOSTRAR,
     ELIMINAR,
@@ -36,7 +37,7 @@ typedef struct {
 	int usosMaximos;
 } movimiento_t;
 
-typedef struct personaje{
+typedef struct personaje {
     char nombre[MAX_CARACTERES_NOMBRE];
 	char presentacion[MAX_CARACTERES_PRESENTACION];
 	
@@ -55,13 +56,14 @@ typedef struct personaje{
     struct personaje * next;
 } personaje_t;
 
-personaje_t *_5TEL=NULL;
+personaje_t *lista_personajes=NULL;
 
 //MENÚ
+void LeerDatos(void);
+void Menu(void);
 void MostrarLista(void);
 void ImprimirPersonaje(personaje_t * personaje);
 void IngresarPersonaje(void);
-void Menu(void);
 void LiberarMemoria(void);
 void LimpiarPantalla(void);
 
@@ -73,15 +75,58 @@ void CalcularMultiplicadores(personaje_t personajes[2], float multiplicador[CANT
 void AumentarEstadisticas(personaje_t personajes[2], int personajeTurno, movimiento_t movimientos[2]);
 void AumentarSalud(personaje_t personajes[2], int personajeTurno, movimiento_t movimientos[2]);
 
-int main (void){
+int main(void)
+{
+    LeerDatos();
     Menu();
     LiberarMemoria();
     return 0;
 }
 
-void Menu (void){
-    opciones_t op;
+void LeerDatos(void)
+{
+    FILE *fp = fopen("lista.bin", "rb"); //fp=file pointer
+    if (fp == NULL) {
+        printf("El archivo de lista no existe, creando uno nuevo...\n");
+        fp = fopen("lista.bin", "wb+");  // Crear el archivo si no existe
+        if (fp == NULL)
+        {
+            printf("Error: No se pudo crear el archivo.\n");
+            exit(1);
+        }
+    }
+
+    bool salir=false;
     do{
+        personaje_t * personaje_ptr= (personaje_t *)malloc(sizeof(personaje_t)); //personaje_ptr apunta a uno nuevo creado con malloc
+        if(fread(personaje_ptr, sizeof(personaje_t), 1, fp)==1){ //fread guarda en la memoria de personaje_ptr los datos del personaje guardado, y en caso de que existan dichos datos...
+            if(lista_personajes==NULL){ //Si es el primer personaje guardado de la lista, se indica al apuntado por personaje_ptr como el primero
+                lista_personajes=personaje_ptr;
+                lista_personajes->next=NULL;
+            
+            }
+            else //Si ya existen otros personajes en la lista...
+            {
+                personaje_t * lista = lista_personajes; //Crea otro puntero temporal para no perder el valor guardado en el global
+                while(lista->next!=NULL){ //Recorre toda la lista, hasta que el puntero lista apunte al último personaje
+                    lista=lista->next;
+                }
+                lista->next=personaje_ptr; //Hace que el último personaje de la lista tenga al nuevo como siguiente, convirtiendo al nuevo en el último de la lista
+                personaje_ptr->next=NULL; //Finalmente, el nuevo personaje tiene a NULL como siguiente, por lo que es el último
+            }
+        }else{ //En caso de que no existan datos de otro personaje, se libera de la memoria dinámica
+            free(personaje_ptr);
+            salir=true;
+        }
+    }while(!salir);
+    fclose(fp);
+}
+
+void Menu(void)
+{
+    opciones_t op;
+    do
+    {
         printf("Menu\n");
         printf("1_Ingresar un personaje\n");
         printf("2_Mostrar toda la lista\n");
@@ -90,7 +135,8 @@ void Menu (void){
         printf("5_Guardar los personajes\n");
         printf("6_Salir\n");
         scanf("%d", &op);
-        switch (op){
+        switch (op)
+        {
             case INGRESAR:
                  IngresarPersonaje();
                 break;
@@ -109,7 +155,8 @@ void Menu (void){
     }while(op!=SALIR);
 }
 
-void ImprimirPersonaje(personaje_t * personaje){
+void ImprimirPersonaje(personaje_t * personaje)
+{
     printf("\n--------------------\n");
     printf("Nombre: %s\n",personaje->nombre);
     printf("Presentación: %s\n",personaje->presentacion);
@@ -131,9 +178,11 @@ void ImprimirPersonaje(personaje_t * personaje){
     printf("--------------------\n");
 }
 
-void IngresarPersonaje(void){
-    personaje_t * personaje_ptr= (personaje_t *)malloc(sizeof(personaje_t));
-    if(personaje_ptr==NULL){
+void IngresarPersonaje(void)
+{
+    personaje_t * personaje_ptr = (personaje_t *)malloc(sizeof(personaje_t));
+    if(personaje_ptr==NULL)
+    {
         printf("Out of Memory");
         exit(1);
     }
@@ -182,31 +231,37 @@ void IngresarPersonaje(void){
 
     personaje_ptr->next=NULL;
     printf("\n");
-    if(_5TEL==NULL){
-        _5TEL=personaje_ptr;
+    if(lista_personajes==NULL)
+    {
+        lista_personajes=personaje_ptr;
     }
-    else{
-        personaje_ptr->next=_5TEL;
-        _5TEL=personaje_ptr;
+    else
+    {
+        personaje_ptr->next=lista_personajes;
+        lista_personajes=personaje_ptr;
     }
 
 }
 
-void MostrarLista(void){
-    personaje_t * lista_personajes=_5TEL;
-    while(lista_personajes!=NULL){
+void MostrarLista(void)
+{
+    personaje_t * lista_personajes=lista_personajes;
+    while(lista_personajes!=NULL)
+    {
         ImprimirPersonaje(lista_personajes);
         lista_personajes=lista_personajes->next;
     }
 }
 
-void LiberarMemoria(void){
-    personaje_t * lista_personajes=_5TEL;
+void LiberarMemoria(void)
+{
+    personaje_t * lista_personajes=lista_personajes;
 
-    while(_5TEL!=NULL){
+    while(lista_personajes!=NULL)
+    {
         free(lista_personajes);
-        _5TEL=_5TEL->next;
-        lista_personajes=_5TEL;
+        lista_personajes=lista_personajes->next;
+        lista_personajes=lista_personajes;
     }
 }
 
