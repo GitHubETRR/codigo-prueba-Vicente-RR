@@ -66,6 +66,9 @@ void OrdenarID(void);
 void IngresarPersonaje(void);
 void ImprimirPersonaje(personaje_t * personaje);
 void MostrarLista(void);
+void BuscarPersonaje(bool eliminar);
+void Eliminar(personaje_t * personaje);
+void Editar(personaje_t * personaje);
 void GuardarDatos(void);
 void LiberarMemoria(void);
 void LimpiarTeclado(void);
@@ -151,14 +154,14 @@ void Menu(void)
                  MostrarLista();
                 break;
             case ELIMINAR:
-
+                BuscarPersonaje(true);
                 break;
             case EDITAR:
+                BuscarPersonaje(false);
                 break;
             case GUARDAR:
                 GuardarDatos();
                 break;
-
         }
         printf("Presione enter para continuar\n");
         fflush(stdin);
@@ -180,15 +183,8 @@ void OrdenarID(void)
     }
 }
 
-void IngresarPersonaje(void) //Considerando que el usuario conoce todas las limitaciones
+void PedirDatos(personaje_t * personaje_ptr)
 {
-    personaje_t * personaje_ptr = (personaje_t *)malloc(sizeof(personaje_t));
-    if(personaje_ptr==NULL)
-    {
-        printf("Out of Memory");
-        exit(1);
-    }
-
     printf("Nombre: ");
     //scanf("%s",personaje_ptr->nombre);
     fgets(personaje_ptr->nombre, sizeof(personaje_ptr->nombre), stdin); //fgets permite incluir espacios
@@ -211,7 +207,7 @@ void IngresarPersonaje(void) //Considerando que el usuario conoce todas las limi
     for (int i=0; i<CANTIDAD_MOVIMIENTOS; i++)
     {
         printf("-\n");
-        printf("MOVIMIENTO %i: %s\n", (i+1), personaje_ptr->movimiento[i].nombre);
+        printf("MOVIMIENTO %i:\n", (i+1));
         printf("Nombre: ");
         //scanf("%s",personaje_ptr->movimiento[i].nombre);
         fgets(personaje_ptr->movimiento[i].nombre, sizeof(personaje_ptr->movimiento[i].nombre), stdin);
@@ -235,6 +231,18 @@ void IngresarPersonaje(void) //Considerando que el usuario conoce todas las limi
         scanf("%i",&personaje_ptr->movimiento[i].usosMaximos);
         LimpiarTeclado();
     }
+}
+
+void IngresarPersonaje(void) //Considerando que el usuario conoce todas las limitaciones
+{
+    personaje_t * personaje_ptr = (personaje_t *)malloc(sizeof(personaje_t));
+    if(personaje_ptr==NULL)
+    {
+        printf("Out of Memory");
+        exit(1);
+    }
+
+    PedirDatos(personaje_ptr);
 
     printf("\n");
     //Coloca al nuevo personaje al final de la fila
@@ -285,6 +293,61 @@ void MostrarLista(void)
         ImprimirPersonaje(lista);
         lista=lista->next;
     }
+}
+
+void BuscarPersonaje(bool eliminar)
+{
+    int id;
+    char opcion;
+
+    printf("ID: ");
+    scanf("%i", &id);
+    LimpiarTeclado();
+    personaje_t * lista=lista_personajes;
+    while ((lista!=NULL)&&(lista->id!=id))
+        lista=lista->next;
+    if (lista==NULL)
+        printf("No se encontró el personaje\n");
+    else
+    {
+        if (eliminar)
+            printf("Eliminar a ");
+        else
+            printf("Editar a ");
+        printf("%s(S/N)", lista->nombre);
+        scanf("%c", &opcion);
+        LimpiarTeclado();
+        if ((opcion=='S')||(opcion=='s'))
+        {
+            if (eliminar)
+                Eliminar(lista);
+            else
+                PedirDatos(lista);
+        }
+    }
+}
+
+void Eliminar(personaje_t * personaje)
+{
+    if (personaje==lista_personajes)
+        lista_personajes=lista_personajes->next;
+    else
+    {
+        personaje_t * lista=lista_personajes;
+        while (lista->next!=personaje)
+        {
+            lista=lista->next;
+            if (lista->next==NULL)
+            {
+                printf("Error: No se encontró al personaje en la lista");
+                exit(1);
+            }
+        }
+        lista->next=(lista->next)->next;
+    }
+    printf("Personaje eliminado exitosamente\n");
+    free(personaje);
+    OrdenarID();
 }
 
 void GuardarDatos(void)
