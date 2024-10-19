@@ -66,6 +66,7 @@ void OrdenarID(void);
 void IngresarPersonaje(void);
 void ImprimirPersonaje(personaje_t * personaje);
 void MostrarLista(void);
+void GuardarDatos(void);
 void LiberarMemoria(void);
 void LimpiarTeclado(void);
 void LimpiarPantalla(void);
@@ -155,6 +156,7 @@ void Menu(void)
             case EDITAR:
                 break;
             case GUARDAR:
+                GuardarDatos();
                 break;
 
         }
@@ -178,7 +180,7 @@ void OrdenarID(void)
     }
 }
 
-void IngresarPersonaje(void)
+void IngresarPersonaje(void) //Considerando que el usuario conoce todas las limitaciones
 {
     personaje_t * personaje_ptr = (personaje_t *)malloc(sizeof(personaje_t));
     if(personaje_ptr==NULL)
@@ -205,6 +207,7 @@ void IngresarPersonaje(void)
     scanf("%i",&personaje_ptr->defensaEspecial);
     printf("Velocidad: ");
     scanf("%i",&personaje_ptr->velocidad);
+    LimpiarTeclado();
     for (int i=0; i<CANTIDAD_MOVIMIENTOS; i++)
     {
         printf("-\n");
@@ -230,6 +233,7 @@ void IngresarPersonaje(void)
         scanf("%i",&personaje_ptr->movimiento[i].aumentoEstadisticas[VELOCIDAD]);
         printf("Usos: ");
         scanf("%i",&personaje_ptr->movimiento[i].usosMaximos);
+        LimpiarTeclado();
     }
 
     printf("\n");
@@ -241,7 +245,10 @@ void IngresarPersonaje(void)
     }
     else
     {
-        lista_personajes->next=personaje_ptr;
+        personaje_t * lista=lista_personajes;
+        while (lista->next!=NULL)
+            lista=lista->next;
+        lista->next=personaje_ptr;
     }
     OrdenarID();
 }
@@ -278,6 +285,18 @@ void MostrarLista(void)
         ImprimirPersonaje(lista);
         lista=lista->next;
     }
+}
+
+void GuardarDatos(void)
+{
+    FILE * fp= fopen ("lista.bin", "wb");
+    personaje_t * lista=lista_personajes;
+    while(lista!=NULL){
+        fwrite((personaje_t *)lista, sizeof(personaje_t), 1, fp);
+        lista=lista->next;
+    }
+    fclose(fp);
+    printf("Datos guardados\n");
 }
 
 void LiberarMemoria(void)
