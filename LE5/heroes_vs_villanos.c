@@ -7,6 +7,8 @@
 #define CANTIDAD_ESTADISTICAS 5
 #define CANTIDAD_MOVIMIENTOS 6
 
+#define SIN_PERSONAJE 0
+#define SIN_CAMBIO -1
 #define JUGADORES 2
 #define MAX_PERSONAJES 6
 #define MIN_AUMENTO_ESTADISTICAS -6
@@ -16,6 +18,11 @@
 #define DEFENSA 2
 #define DEFENSA_ESPECIAL 3
 #define VELOCIDAD 4
+
+#define FORCEJEO -1
+#define CAMBIO -2
+#define FORCEJEO_POTENCIA 20
+#define FORCEJEO_PERDIDA_SALUD 0.25
 
 typedef enum {
     JUGAR=1,
@@ -80,12 +87,14 @@ void LimpiarPantalla(void);
 //JUEGO
 void Jugar(void);
 void ElegirPersonajes(personaje_t personajes[JUGADORES][MAX_PERSONAJES]);
-void Turno(personaje_t personajes[JUGADORES], movimiento_t movimientos[JUGADORES]);
-int CompararVelocidades(personaje_t personajes[JUGADORES]);
-void Atacar(personaje_t personajes[JUGADORES], int personajeTurno, movimiento_t movimientos[JUGADORES]);
-void CalcularMultiplicadores(personaje_t personajes[JUGADORES], float multiplicador[CANTIDAD_ESTADISTICAS-1], int personajeTurno);
-void AumentarEstadisticas(personaje_t personajes[JUGADORES], int personajeTurno, movimiento_t movimientos[JUGADORES]);
-void AumentarSalud(personaje_t personajes[JUGADORES], int personajeTurno, movimiento_t movimientos[JUGADORES]);
+void ElegirMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES], int cambioPersonaje[JUGADORES]);
+bool VerificarUsos(personaje_t personaje);
+void Turno(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES]);
+int CompararVelocidades(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES]);
+void Atacar(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int personajeTurno, int movimientos[JUGADORES]);
+void CalcularMultiplicadores(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], float multiplicador[CANTIDAD_ESTADISTICAS-1], int personajeTurno);
+void AumentarEstadisticas(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int personajeTurno, int movimientos[JUGADORES]);
+void AumentarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int personajeTurno, int movimientos[JUGADORES]);
 
 int main(void)
 {
@@ -190,12 +199,10 @@ void Menu(void)
 void OrdenarID(void)
 {
     personaje_t * lista=lista_personajes;
-    int id=1;
-    while (lista!=NULL)
+    for (int id=1; lista!=NULL; id++)
     {
         lista->id=id;
         lista=lista->next;
-        id++;
     }
 }
 
@@ -421,13 +428,17 @@ void Jugar(void)
 {
     bool jugar=true;
     personaje_t personajes[JUGADORES][MAX_PERSONAJES];
-    movimiento_t movimientos[JUGADORES];
+    int movimientos[JUGADORES];
     int personajesJugando[JUGADORES];
+    int cambioPersonaje[JUGADORES];
 
     ElegirPersonajes(personajes);
+    VaciarEstadisticas(personajes);
     do
     {
-        ElegirMovimientos(personajes, personajesJugando);
+        ElegirMovimientos(personajes, personajesJugando, movimientos, cambioPersonaje);
+        CambiarPersonajes(personajes, cambioPersonaje, personajesJugando);
+        Turno(personajes, personajesJugando, movimientos);
     } while (jugar);
     
 }
@@ -440,20 +451,22 @@ void ElegirPersonajes(personaje_t personajes[JUGADORES][MAX_PERSONAJES])
         for (int personaje=0; personaje<MAX_PERSONAJES; personaje++)
         {
             int id;
-            bool respuestaValida = true;
+            bool respuestaValida;
             do
             {
+                respuestaValida = true;
                 printf("Jugador %i, introducí el ID del %i° personaje\n", (jugador+1), (personaje+1));
-                if (personaje!=0)
-                    printf("Enviá 0 para terminar el equipo\n");
+                if (personaje!=0) //Si no es el primer personaje, porque el equipo no puede estar vacío
+                    printf("Enviá %i para terminar el equipo\n", SIN_PERSONAJE);
                 scanf("%i", &id);
-                if ((id==0)&&(personaje!=0))
+                if ((id==SIN_PERSONAJE)&&(personaje!=0))
                 {
                     while (personaje<MAX_PERSONAJES)
                     {
-                        personajes[jugador][personaje].id=0; //identificador de sin personaje
+                        personajes[jugador][personaje].id=SIN_PERSONAJE;
                         personaje++;
                     }
+                    respuestaValida=true;
                 }
                 else
                 {
@@ -471,59 +484,162 @@ void ElegirPersonajes(personaje_t personajes[JUGADORES][MAX_PERSONAJES])
     }
 }
 
-void ElegirMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES])
+void VaciarEstadisticas(personaje_t personajes[JUGADORES][MAX_PERSONAJES])
 {
-    int opcion=1;
     for (int jugador=0; jugador<JUGADORES; jugador++)
     {
-        printf("Jugador %i\n", jugador);
-        for (int movimiento=0; movimiento<CANTIDAD_MOVIMIENTOS; movimiento++)
-        {
-            if ((personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usos) > 0)
-            {
-                printf("%i_%s - %i/%i\n", opcion, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].nombre, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usos, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usosMaximos);
-                opcion++;
-            }
-        }
         for (int personaje=0; personaje<MAX_PERSONAJES; personaje++)
         {
-            if ((personajes[jugador][personajesJugando[jugador]].id!=0)&&(personajes[jugador][personajesJugando[jugador]].id>0))
+            personajes[jugador][personaje].salud = personajes[jugador][personaje].saludMaxima;
+            for (int estadistica=0; estadistica<CANTIDAD_ESTADISTICAS; estadistica++)
             {
-                printf("%i_Cambiar a %s - %i%\n", opcion, personajes[jugador][personajesJugando[jugador]].nombre, (100*personajes[jugador][personajesJugando[jugador]].salud/personajes[jugador][personajesJugando[jugador]].saludMaxima));
-                opcion++;
+                personajes[jugador][personaje].aumentoEstadisticas[estadistica] = 0;
+            }
+            for (int movimiento; movimiento<CANTIDAD_MOVIMIENTOS; movimiento++)
+            {
+                personajes[jugador][personaje].movimiento[movimiento].usos = personajes[jugador][personaje].movimiento[movimiento].usosMaximos;
             }
         }
     }
 }
 
-void Turno(personaje_t personajes[JUGADORES], movimiento_t movimientos[JUGADORES]) //Se almacena el nuevo estado de ambos personajes en un vector temporalmente para poder devolver ambos
+int MenuMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int jugador, bool usosDisponibles)
 {
-    int personajeTurno=CompararVelocidades(personajes);
+    int opcion=1;
+
+    printf("Jugador %i\n", jugador);
+    for (int movimiento=0; movimiento<CANTIDAD_MOVIMIENTOS; movimiento++)
+    {
+        printf("%i_%s - %i/%i\n", opcion, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].nombre, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usos, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usosMaximos);
+        opcion++;
+    }
+    for (int personaje=0; personaje<MAX_PERSONAJES; personaje++)
+    {
+    printf("%i_%s - %i%\n", opcion, personajes[jugador][personajesJugando[jugador]].nombre, (100*personajes[jugador][personajesJugando[jugador]].salud/personajes[jugador][personajesJugando[jugador]].saludMaxima));
+        opcion++;
+    }
+    if (!usosDisponibles)
+        printf("%i_Forcejeo\n", opcion);
+}
+
+void ElegirOpcion(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES], int cambioPersonaje[JUGADORES], int jugador, int opcion, bool usosDisponibles)
+{
+    int eleccion;
+    bool opcionValida=false;
+
+    do
+    {
+        scanf("%i", &eleccion);
+        if ((eleccion==opcion)&&(!usosDisponibles))
+            movimientos[jugador]=FORCEJEO;
+        else
+        {
+            if ((eleccion>0)&&(eleccion<opcion))
+            {
+                if (eleccion<=CANTIDAD_MOVIMIENTOS) //se eligió un movimiento
+                {
+                    if (personajes[jugador][personajesJugando[jugador]].movimiento[(eleccion-1)].usos > 0)
+                    {
+                        movimientos[jugador]=eleccion-1;
+                        opcionValida=true;
+                    }
+                    else
+                        printf("No te quedan usos para este movimiento\n");
+                }
+                else //se eligió un personaje
+                {
+                    if (personajes[jugador][eleccion-CANTIDAD_MOVIMIENTOS-1].salud>0)
+                    {
+                        cambioPersonaje[jugador]=opcion-CANTIDAD_MOVIMIENTOS-1;
+                        movimientos[jugador]=CAMBIO;
+                        opcionValida=true;
+                    }
+                    else
+                        printf("%s está debilitado\n", personajes[jugador][eleccion-CANTIDAD_MOVIMIENTOS-1].nombre);
+                }
+            }
+            else
+                printf("Introducí una opción válida\n");
+        }
+    } while (!opcionValida);
+}
+
+void ElegirMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES], int cambioPersonaje[JUGADORES])
+{
+    int opcion;
+    bool usosDisponibles; //Si quedan usos disponibles para cualquier movimiento
+
+    for (int jugador=0; jugador<JUGADORES; jugador++)
+    {
+        cambioPersonaje[jugador] = SIN_CAMBIO;
+        usosDisponibles = VerificarUsos(personajes[jugador][personajesJugando[jugador]]);
+        opcion = MenuMovimientos(personajes, personajesJugando, jugador, usosDisponibles);
+
+        ElegirOpcion(personajes, personajesJugando, movimientos, cambioPersonaje, jugador, opcion, usosDisponibles);
+        
+        LimpiarPantalla();
+    }
+}
+
+bool VerificarUsos(personaje_t personaje)
+{
+    bool usosDisponibles=true;
+    for (int i=0; i<CANTIDAD_MOVIMIENTOS; i++)
+        if (personaje.movimiento[i].usos==0)
+            usosDisponibles=false;
+    
+    return usosDisponibles;
+}
+
+void CambiarPersonajes(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int cambioPersonaje[JUGADORES], int personajesJugando[JUGADORES])
+{
+    for (int jugador=0; jugador<JUGADORES; jugador++)
+    {
+        if (cambioPersonaje[jugador]!=SIN_CAMBIO)
+        {
+            personajesJugando[jugador] = cambioPersonaje[jugador];
+        }
+    }
+}
+
+
+void Turno(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES]) //Se almacena el nuevo estado de ambos personajes en un vector temporalmente para poder devolver ambos
+{
+    int personajeTurno=CompararVelocidades(personajes, personajesJugando);
     
     for (int t=0; t<JUGADORES; t++)
     {
-        Atacar(personajes, personajeTurno, movimientos);
-        AumentarEstadisticas(personajes, personajeTurno, movimientos);
-        AumentarSalud(personajes, personajeTurno, movimientos);
+        Atacar(personajes, personajesJugando, personajeTurno, movimientos);
+        if (movimientos[personajeTurno]==FORCEJEO)
+        {
+            personajes[personajeTurno][personajesJugando[personajeTurno]].salud -= personajes[personajeTurno][personajesJugando[personajeTurno]].saludMaxima * FORCEJEO_PERDIDA_SALUD;
+            if (personajes[personajeTurno][personajesJugando[personajeTurno]].salud<0)
+                personajes[personajeTurno][personajesJugando[personajeTurno]].salud=0;
+        }
+        else
+        {
+            AumentarEstadisticas(personajes, personajesJugando, personajeTurno, movimientos);
+            AumentarSalud(personajes, personajesJugando, personajeTurno, movimientos);
+        }
         
         personajeTurno = (personajeTurno==0)?1:0;
-        if (personajes[personajeTurno].salud==0) t=JUGADORES; //Termina el turno
+        if (personajes[personajeTurno][personajesJugando[personajeTurno]].salud==0) t=JUGADORES; //Termina el turno
     }
 }
 
-int CompararVelocidades(personaje_t personajes[JUGADORES])
+int CompararVelocidades(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES])
 {
     float velocidad[JUGADORES];
     int personajeTurno;
     
     for (int personaje=0; personaje<JUGADORES; personaje++)
     {
-        if (personajes[personaje].aumentoEstadisticas[VELOCIDAD]<0)
-            velocidad[personaje]=2.0/(2.0-(float)personajes[personaje].aumentoEstadisticas[VELOCIDAD]);
+        if (personajes[personaje][personajesJugando[personaje]].aumentoEstadisticas[VELOCIDAD]<0)
+            velocidad[personaje]=2.0/(2.0-(float)personajes[personaje][personajesJugando[personaje]].aumentoEstadisticas[VELOCIDAD]);
         else
-            velocidad[personaje]=(2.0+(float)personajes[personaje].aumentoEstadisticas[VELOCIDAD])/2.0;
+            velocidad[personaje]=(2.0+(float)personajes[personaje][personajesJugando[personaje]].aumentoEstadisticas[VELOCIDAD])/2.0;
         
-        velocidad[personaje]*=personajes[personaje].velocidad;
+        velocidad[personaje]*=personajes[personaje][personajesJugando[personaje]].velocidad;
     }
     if (velocidad[0]==velocidad[1]) personajeTurno = rand()%JUGADORES;
     else
@@ -532,26 +648,33 @@ int CompararVelocidades(personaje_t personajes[JUGADORES])
     return personajeTurno;
 }
 
-void Atacar(personaje_t personajes[JUGADORES], int personajeTurno, movimiento_t movimientos[JUGADORES])
+void Atacar(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int personajeTurno, int movimientos[JUGADORES])
 {
     float multiplicador[CANTIDAD_ESTADISTICAS-1]; //Menos la velocidad, que ya fue calculada
     int personajeRival = (personajeTurno==0)?1:0;
     
-    CalcularMultiplicadores(personajes, multiplicador, personajeTurno);
-    
-    personajes[personajeRival].salud-=multiplicador[ATAQUE]/multiplicador[DEFENSA]*movimientos[personajeTurno].potencia*personajes[personajeTurno].ataque/personajes[personajeRival].defensa;
-    personajes[personajeRival].salud-=multiplicador[ATAQUE_ESPECIAL]/multiplicador[DEFENSA_ESPECIAL]*movimientos[personajeTurno].potenciaEspecial*personajes[personajeTurno].ataqueEspecial/personajes[personajeRival].defensaEspecial;
-    if (personajes[personajeRival].salud<0) personajes[personajeRival].salud=0;
+    CalcularMultiplicadores(personajes, personajesJugando, multiplicador, personajeTurno);
+    if (movimientos[personajeTurno]==FORCEJEO)
+    {
+        personajes[personajeRival][personajesJugando[personajeRival]].salud -= multiplicador[ATAQUE] / multiplicador[DEFENSA] * FORCEJEO_POTENCIA * personajes[personajeTurno][personajesJugando[personajeTurno]].ataque / personajes[personajeRival][personajesJugando[personajeRival]].defensa;
+        personajes[personajeRival][personajesJugando[personajeRival]].salud -= multiplicador[ATAQUE_ESPECIAL] / multiplicador[DEFENSA_ESPECIAL] * FORCEJEO_POTENCIA * personajes[personajeTurno][personajesJugando[personajeTurno]].ataqueEspecial / personajes[personajeRival][personajesJugando[personajeRival]].defensaEspecial;
+    }
+    else
+    {
+        personajes[personajeRival][personajesJugando[personajeRival]].salud -= multiplicador[ATAQUE] / multiplicador[DEFENSA] * personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].potencia * personajes[personajeTurno][personajesJugando[personajeTurno]].ataque / personajes[personajeRival][personajesJugando[personajeRival]].defensa;
+        personajes[personajeRival][personajesJugando[personajeRival]].salud -= multiplicador[ATAQUE_ESPECIAL] / multiplicador[DEFENSA_ESPECIAL] * personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].potenciaEspecial * personajes[personajeTurno][personajesJugando[personajeTurno]].ataqueEspecial / personajes[personajeRival][personajesJugando[personajeRival]].defensaEspecial;
+    }
+    if (personajes[personajeRival][personajesJugando[personajeRival]].salud<0) personajes[personajeRival][personajesJugando[personajeRival]].salud=0;
 }
 
-void CalcularMultiplicadores(personaje_t personajes[JUGADORES], float multiplicador[CANTIDAD_ESTADISTICAS-1], int personajeTurno)
+void CalcularMultiplicadores(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], float multiplicador[CANTIDAD_ESTADISTICAS-1], int personajeTurno)
 {
     int personajeRival = (personajeTurno==0)?1:0;
     
-    multiplicador[ATAQUE]=(float) personajes[personajeTurno].aumentoEstadisticas[ATAQUE];
-    multiplicador[ATAQUE_ESPECIAL]=(float) personajes[personajeTurno].aumentoEstadisticas[ATAQUE_ESPECIAL];
-    multiplicador[DEFENSA]=(float) personajes[personajeRival].aumentoEstadisticas[DEFENSA];
-    multiplicador[DEFENSA_ESPECIAL]=(float) personajes[personajeRival].aumentoEstadisticas[DEFENSA_ESPECIAL];
+    multiplicador[ATAQUE]=(float) personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[ATAQUE];
+    multiplicador[ATAQUE_ESPECIAL]=(float) personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[ATAQUE_ESPECIAL];
+    multiplicador[DEFENSA]=(float) personajes[personajeRival][personajesJugando[personajeRival]].aumentoEstadisticas[DEFENSA];
+    multiplicador[DEFENSA_ESPECIAL]=(float) personajes[personajeRival][personajesJugando[personajeRival]].aumentoEstadisticas[DEFENSA_ESPECIAL];
     for (int i=0; i<(CANTIDAD_ESTADISTICAS-1); i++)
     {
         if (multiplicador[i]<0)
@@ -561,21 +684,21 @@ void CalcularMultiplicadores(personaje_t personajes[JUGADORES], float multiplica
     }
 }
 
-void AumentarEstadisticas(personaje_t personajes[JUGADORES], int personajeTurno, movimiento_t movimientos[JUGADORES])
+void AumentarEstadisticas(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int personajeTurno, int movimientos[JUGADORES])
 {
     for (int i=0; i<CANTIDAD_ESTADISTICAS; i++)
     {
-        personajes[personajeTurno].aumentoEstadisticas[i]+=movimientos[personajeTurno].aumentoEstadisticas[i];
-        if (personajes[personajeTurno].aumentoEstadisticas[i]<MIN_AUMENTO_ESTADISTICAS)
-            personajes[personajeTurno].aumentoEstadisticas[i]=MIN_AUMENTO_ESTADISTICAS;
-        if (personajes[personajeTurno].aumentoEstadisticas[i]>MAX_AUMENTO_ESTADISTICAS)
-            personajes[personajeTurno].aumentoEstadisticas[i]=MAX_AUMENTO_ESTADISTICAS;
+        personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[i] += personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].aumentoEstadisticas[i];
+        if (personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[i]<MIN_AUMENTO_ESTADISTICAS)
+            personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[i]=MIN_AUMENTO_ESTADISTICAS;
+        if (personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[i]>MAX_AUMENTO_ESTADISTICAS)
+            personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[i]=MAX_AUMENTO_ESTADISTICAS;
     }
 }
 
-void AumentarSalud(personaje_t personajes[JUGADORES], int personajeTurno, movimiento_t movimientos[JUGADORES])
+void AumentarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int personajeTurno, int movimientos[JUGADORES])
 {
-    personajes[personajeTurno].salud+=personajes[personajeTurno].saludMaxima*movimientos[personajeTurno].aumentoSalud;
-    if (personajes[personajeTurno].salud>personajes[personajeTurno].saludMaxima)
-        personajes[personajeTurno].salud=personajes[personajeTurno].saludMaxima;
+    personajes[personajeTurno][personajesJugando[personajeTurno]].salud+=personajes[personajeTurno][personajesJugando[personajeTurno]].saludMaxima * personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].aumentoSalud;
+    if (personajes[personajeTurno][personajesJugando[personajeTurno]].salud > personajes[personajeTurno][personajesJugando[personajeTurno]].saludMaxima)
+        personajes[personajeTurno][personajesJugando[personajeTurno]].salud = personajes[personajeTurno][personajesJugando[personajeTurno]].saludMaxima;
 }
