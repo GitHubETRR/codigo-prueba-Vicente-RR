@@ -1,8 +1,16 @@
+/*
+FUNCIONES RESTANTES:
+Que obligue al jugador a cambiar de personaje cuando es debilitado
+Verificación de victoria
+Interfaz
+Mensajes
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#define MAX_CARACTERES_NOMBRE 30
+#define MAX_CARACTERES_NOMBRE 50
 #define MAX_CARACTERES_PRESENTACION 1000
 #define CANTIDAD_ESTADISTICAS 5
 #define CANTIDAD_MOVIMIENTOS 6
@@ -73,12 +81,13 @@ personaje_t *lista_personajes=NULL;
 void LeerDatos(void);
 void Menu(void);
 void OrdenarID(void);
+void PedirDatos(personaje_t * personaje_ptr);
 void IngresarPersonaje(void);
 void ImprimirPersonaje(personaje_t * personaje, bool mostrarDatos);
 void MostrarLista(bool mostrarDatos);
+personaje_t * ApuntarID(int id);
 void BuscarPersonaje(bool eliminar);
 void Eliminar(personaje_t * personaje);
-void Editar(personaje_t * personaje);
 void GuardarDatos(void);
 void LiberarMemoria(void);
 void LimpiarTeclado(void);
@@ -87,8 +96,12 @@ void LimpiarPantalla(void);
 //JUEGO
 void Jugar(void);
 void ElegirPersonajes(personaje_t personajes[JUGADORES][MAX_PERSONAJES]);
+void VaciarEstadisticas(personaje_t personajes[JUGADORES][MAX_PERSONAJES]);
+int MenuMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int jugador, bool usosDisponibles);
+void ElegirOpcion(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES], int cambioPersonaje[JUGADORES], int jugador, int opcion, bool usosDisponibles);
 void ElegirMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES], int cambioPersonaje[JUGADORES]);
-bool VerificarUsos(personaje_t personaje);
+bool VerificarUsos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int jugador, int personajesJugando[JUGADORES]);
+void CambiarPersonajes(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int cambioPersonaje[JUGADORES], int personajesJugando[JUGADORES]);
 void Turno(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES]);
 int CompararVelocidades(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES]);
 void Atacar(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int personajeTurno, int movimientos[JUGADORES]);
@@ -466,7 +479,6 @@ void ElegirPersonajes(personaje_t personajes[JUGADORES][MAX_PERSONAJES])
                         personajes[jugador][personaje].id=SIN_PERSONAJE;
                         personaje++;
                     }
-                    respuestaValida=true;
                 }
                 else
                 {
@@ -495,7 +507,7 @@ void VaciarEstadisticas(personaje_t personajes[JUGADORES][MAX_PERSONAJES])
             {
                 personajes[jugador][personaje].aumentoEstadisticas[estadistica] = 0;
             }
-            for (int movimiento; movimiento<CANTIDAD_MOVIMIENTOS; movimiento++)
+            for (int movimiento=0; movimiento<CANTIDAD_MOVIMIENTOS; movimiento++)
             {
                 personajes[jugador][personaje].movimiento[movimiento].usos = personajes[jugador][personaje].movimiento[movimiento].usosMaximos;
             }
@@ -515,11 +527,16 @@ int MenuMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int perso
     }
     for (int personaje=0; personaje<MAX_PERSONAJES; personaje++)
     {
-    printf("%i_%s - %i%\n", opcion, personajes[jugador][personajesJugando[jugador]].nombre, (100*personajes[jugador][personajesJugando[jugador]].salud/personajes[jugador][personajesJugando[jugador]].saludMaxima));
-        opcion++;
+        if (personajes[jugador][personaje].id!=SIN_PERSONAJE)
+        {
+            if (personaje!=personajesJugando[jugador])
+                printf("%i_%s - %i%\n", opcion, personajes[jugador][personaje].nombre, (100*personajes[jugador][personaje].salud/personajes[jugador][personaje].saludMaxima));
+            opcion++;
+        }
     }
     if (!usosDisponibles)
         printf("%i_Forcejeo\n", opcion);
+    return opcion;
 }
 
 void ElegirOpcion(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES], int cambioPersonaje[JUGADORES], int jugador, int opcion, bool usosDisponibles)
@@ -531,16 +548,20 @@ void ElegirOpcion(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int persona
     {
         scanf("%i", &eleccion);
         if ((eleccion==opcion)&&(!usosDisponibles))
+        {
             movimientos[jugador]=FORCEJEO;
+            opcionValida=true;
+        }
         else
         {
-            if ((eleccion>0)&&(eleccion<opcion))
+            if ((eleccion>0)&&(eleccion<opcion)&&((eleccion-CANTIDAD_MOVIMIENTOS-1)!=personajesJugando[jugador])) //Se encuentra en el rango de opciones
             {
                 if (eleccion<=CANTIDAD_MOVIMIENTOS) //se eligió un movimiento
                 {
                     if (personajes[jugador][personajesJugando[jugador]].movimiento[(eleccion-1)].usos > 0)
                     {
                         movimientos[jugador]=eleccion-1;
+                        personajes[jugador][personajesJugando[jugador]].movimiento[movimientos[jugador]].usos--;
                         opcionValida=true;
                     }
                     else
@@ -550,7 +571,7 @@ void ElegirOpcion(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int persona
                 {
                     if (personajes[jugador][eleccion-CANTIDAD_MOVIMIENTOS-1].salud>0)
                     {
-                        cambioPersonaje[jugador]=opcion-CANTIDAD_MOVIMIENTOS-1;
+                        cambioPersonaje[jugador]=eleccion-CANTIDAD_MOVIMIENTOS-1;
                         movimientos[jugador]=CAMBIO;
                         opcionValida=true;
                     }
@@ -572,7 +593,7 @@ void ElegirMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int pe
     for (int jugador=0; jugador<JUGADORES; jugador++)
     {
         cambioPersonaje[jugador] = SIN_CAMBIO;
-        usosDisponibles = VerificarUsos(personajes[jugador][personajesJugando[jugador]]);
+        usosDisponibles = VerificarUsos(personajes, jugador, personajesJugando);
         opcion = MenuMovimientos(personajes, personajesJugando, jugador, usosDisponibles);
 
         ElegirOpcion(personajes, personajesJugando, movimientos, cambioPersonaje, jugador, opcion, usosDisponibles);
@@ -581,12 +602,14 @@ void ElegirMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int pe
     }
 }
 
-bool VerificarUsos(personaje_t personaje)
+bool VerificarUsos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int jugador, int personajesJugando[JUGADORES])
 {
-    bool usosDisponibles=true;
+    bool usosDisponibles=false;
     for (int i=0; i<CANTIDAD_MOVIMIENTOS; i++)
-        if (personaje.movimiento[i].usos==0)
-            usosDisponibles=false;
+    {
+        if (personajes[jugador][personajesJugando[jugador]].movimiento[i].usos>0)
+            usosDisponibles=true;
+    }
     
     return usosDisponibles;
 }
@@ -609,17 +632,20 @@ void Turno(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJuga
     
     for (int t=0; t<JUGADORES; t++)
     {
-        Atacar(personajes, personajesJugando, personajeTurno, movimientos);
-        if (movimientos[personajeTurno]==FORCEJEO)
+        if (movimientos[personajeTurno]!=CAMBIO)
         {
-            personajes[personajeTurno][personajesJugando[personajeTurno]].salud -= personajes[personajeTurno][personajesJugando[personajeTurno]].saludMaxima * FORCEJEO_PERDIDA_SALUD;
-            if (personajes[personajeTurno][personajesJugando[personajeTurno]].salud<0)
-                personajes[personajeTurno][personajesJugando[personajeTurno]].salud=0;
-        }
-        else
-        {
-            AumentarEstadisticas(personajes, personajesJugando, personajeTurno, movimientos);
-            AumentarSalud(personajes, personajesJugando, personajeTurno, movimientos);
+            Atacar(personajes, personajesJugando, personajeTurno, movimientos);
+            if (movimientos[personajeTurno]==FORCEJEO)
+            {
+                personajes[personajeTurno][personajesJugando[personajeTurno]].salud -= personajes[personajeTurno][personajesJugando[personajeTurno]].saludMaxima * FORCEJEO_PERDIDA_SALUD;
+                if (personajes[personajeTurno][personajesJugando[personajeTurno]].salud<0)
+                    personajes[personajeTurno][personajesJugando[personajeTurno]].salud=0;
+            }
+            else
+            {
+                AumentarEstadisticas(personajes, personajesJugando, personajeTurno, movimientos);
+                AumentarSalud(personajes, personajesJugando, personajeTurno, movimientos);
+            }
         }
         
         personajeTurno = (personajeTurno==0)?1:0;
