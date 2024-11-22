@@ -1,6 +1,6 @@
 /*
 FUNCIONES RESTANTES:
-Mejorar interfaz de movimientos
+Agregar colores para windows y linux con define
 Mensajes
 */
 
@@ -100,6 +100,7 @@ void LimpiarPantalla(void);
 //JUEGO
 void Jugar(void);
 void Interfaz(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES]);
+void ElegirNombres(void);
 void ElegirPersonajes(personaje_t personajes[JUGADORES][MAX_PERSONAJES]);
 void VaciarEstadisticas(personaje_t personajes[JUGADORES][MAX_PERSONAJES]);
 int MenuMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int jugador, bool usosDisponibles);
@@ -114,7 +115,7 @@ void CalcularMultiplicadores(personaje_t personajes[JUGADORES][MAX_PERSONAJES], 
 void AumentarEstadisticas(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int personajeTurno, int movimientos[JUGADORES]);
 void AumentarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int personajeTurno, int movimientos[JUGADORES]);
 
-bool VerificarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES]);
+bool VerificarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES]);
 int VerificarVictoria(personaje_t personajes[JUGADORES][MAX_PERSONAJES]);
 void ElegirCambio(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int jugador);
 
@@ -171,14 +172,14 @@ void Menu(void)
     opciones_t op;
     do
     {
-        printf("Menu\n");
-        printf("1_Jugar\n");
-        printf("2_Ingresar un personaje\n");
-        printf("3_Mostrar toda la lista\n");
-        printf("4_Eliminar un personaje\n");
-        printf("5_Editar un personaje\n");
-        printf("6_Guardar los personajes\n");
-        printf("7_Salir\n");
+        printf("\033[32;4mMenu\033[0m\n");
+        printf("\033[32;1m1_Jugar\033[0m\n");
+        printf("\033[32;1m2_Ingresar un personaje\033[0m\n");
+        printf("\033[32;1m3_Mostrar toda la lista\033[0m\n");
+        printf("\033[32;1m4_Eliminar un personaje\033[0m\n");
+        printf("\033[32;1m5_Editar un personaje\033[0m\n");
+        printf("\033[32;1m6_Guardar los personajes\033[0m\n");
+        printf("\033[32;1m7_Salir\033[0m\n");
         scanf("%d", &op);
         LimpiarTeclado();
         LimpiarPantalla();
@@ -483,16 +484,16 @@ void Interfaz(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJ
                 personajesVivos++;
         }
         printf("\033[34;7m%s (%i)\033[0m\n", nombres[jugador], personajesVivos);
-        printf("\033[33;7m%s\033[0m ", personajes[jugador][personajesJugando[jugador]]);
-        if ((100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)>PORC_SALUD_1)
+        printf("\033[33;7m%s\033[0m ", personajes[jugador][personajesJugando[jugador]].nombre);
+        if (((100*personajes[jugador][personajesJugando[jugador]].salud) / personajes[jugador][personajesJugando[jugador]].saludMaxima)>PORC_SALUD_1)
             printf("\033[32;1m%i%\033[0m\n", (100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)); //Verde
         else
         {
-            if ((100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)>PORC_SALUD_2)
+            if (((100*personajes[jugador][personajesJugando[jugador]].salud) / personajes[jugador][personajesJugando[jugador]].saludMaxima)>PORC_SALUD_2)
                 printf("\033[33;1m%i%\033[0m\n", (100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)); //Amarillo
             else
             {
-                if ((100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)>PORC_SALUD_1)
+                if (((100*personajes[jugador][personajesJugando[jugador]].salud) / personajes[jugador][personajesJugando[jugador]].saludMaxima)>PORC_SALUD_3)
                     printf("\033[31;1m%i%\033[0m\n", (100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)); //Rojo
                 else
                     printf("\033[31;7m1%\033[0m\n");
@@ -582,7 +583,10 @@ int MenuMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int perso
     printf("%s\n", nombres[jugador]);
     for (int movimiento=0; movimiento<CANTIDAD_MOVIMIENTOS; movimiento++)
     {
-        printf("%i_%s - %i/%i\n", opcion, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].nombre, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usos, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usosMaximos);
+        if (personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usos>0)
+            printf("\033[36;1m%i_%s - %i/%i\033[0m\n", opcion, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].nombre, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usos, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usosMaximos);
+        else
+            printf("\033[30;1m%s - 0/0\033[0m\n", personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].nombre);
         opcion++;
     }
     for (int personaje=0; personaje<MAX_PERSONAJES; personaje++)
@@ -590,7 +594,12 @@ int MenuMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int perso
         if (personajes[jugador][personaje].id!=SIN_PERSONAJE)
         {
             if (personaje!=personajesJugando[jugador])
-                printf("%i_%s - %i%\n", opcion, personajes[jugador][personaje].nombre, (100*personajes[jugador][personaje].salud/personajes[jugador][personaje].saludMaxima));
+            {
+                if (personajes[jugador][personaje].salud>0)
+                    printf("\033[33;1m%i_%s - %i%\033[0m\n", opcion, personajes[jugador][personaje].nombre, (100*personajes[jugador][personaje].salud/personajes[jugador][personaje].saludMaxima));
+                else
+                    printf("\033[30;1m%s - 0%\033[0m\n", personajes[jugador][personaje].nombre);
+            }
             opcion++;
         }
     }
@@ -707,7 +716,7 @@ bool Turno(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJuga
                 AumentarSalud(personajes, personajesJugando, personajeTurno, movimientos);
             }
         }
-        jugar=VerificarSalud(personajes, personajesJugando);
+        jugar=VerificarSalud(personajes, personajesJugando, movimientos);
         personajeTurno = !personajeTurno;
         if (!jugar)
             t=JUGADORES;
@@ -752,7 +761,8 @@ void Atacar(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJug
         personajes[personajeRival][personajesJugando[personajeRival]].salud -= multiplicador[ATAQUE] / multiplicador[DEFENSA] * personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].potencia * personajes[personajeTurno][personajesJugando[personajeTurno]].ataque / personajes[personajeRival][personajesJugando[personajeRival]].defensa;
         personajes[personajeRival][personajesJugando[personajeRival]].salud -= multiplicador[ATAQUE_ESPECIAL] / multiplicador[DEFENSA_ESPECIAL] * personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].potenciaEspecial * personajes[personajeTurno][personajesJugando[personajeTurno]].ataqueEspecial / personajes[personajeRival][personajesJugando[personajeRival]].defensaEspecial;
     }
-    if (personajes[personajeRival][personajesJugando[personajeRival]].salud<0) personajes[personajeRival][personajesJugando[personajeRival]].salud=0;
+    if (personajes[personajeRival][personajesJugando[personajeRival]].salud<0)
+        personajes[personajeRival][personajesJugando[personajeRival]].salud=0;
 }
 
 void CalcularMultiplicadores(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], float multiplicador[CANTIDAD_ESTADISTICAS-1], int personajeTurno)
@@ -791,7 +801,7 @@ void AumentarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int person
         personajes[personajeTurno][personajesJugando[personajeTurno]].salud = personajes[personajeTurno][personajesJugando[personajeTurno]].saludMaxima;
 }
 
-bool VerificarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES])
+bool VerificarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES])
 {
     int victoria=VerificarVictoria(personajes);
     bool jugar=true;
@@ -801,7 +811,10 @@ bool VerificarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int perso
         {
             printf("%s se debilitó\n", personajes[jugador][personajesJugando[jugador]].nombre);
             if (victoria==SIN_VICTORIA)
+            {
                 ElegirCambio(personajes, personajesJugando, jugador);
+                movimientos[jugador]=CAMBIO;
+            }
             else
             {
                 jugar=false;
@@ -832,34 +845,26 @@ int VerificarVictoria(personaje_t personajes[JUGADORES][MAX_PERSONAJES])
 
 void ElegirCambio(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int jugador)
 {
-    int opcion=1;
-    int opcionPosible=0;
     int eleccion;
     bool eleccionValida;
-    int personaje;
 
     printf("%s, elegí un personaje para reemplazarlo\n", nombres[jugador]);
     for (int i=0; i<MAX_PERSONAJES; i++)
     {
         if ((personajes[jugador][i].id!=SIN_PERSONAJE)&&(personajes[jugador][i].salud>0))
         {
-            printf("%i_%s - %i/%i%\n", opcion, personajes[jugador][i].nombre, personajes[jugador][i].salud, personajes[jugador][i].saludMaxima);
-            opcion++;
+            printf("\033[33;1m%i_%s - %i/%i%\033[0m\n", (i+1), personajes[jugador][i].nombre, personajes[jugador][i].salud, personajes[jugador][i].saludMaxima);
         }
     }
     do
     {
         eleccionValida=false;
-        scanf("%i", eleccion);
-        if ((eleccion>=1)||(eleccion<=opcion))
+        scanf("%i", &eleccion);
+        eleccion--; //Para que el primero sea 0 en lugar de 1
+        if ((eleccion>=0)&&(eleccion<MAX_PERSONAJES)&&(personajes[jugador][eleccion].salud>0)&&(personajes[jugador][eleccion].id!=SIN_PERSONAJE))
             eleccionValida=true;
         else
             printf("Ingresá una opción válida\n");
     } while (!eleccionValida);
-    for (personaje=0; eleccion!=opcionPosible; personaje++)
-    {
-        if ((personajes[jugador][personaje].id!=SIN_PERSONAJE)&&(personajes[jugador][personaje].salud>0))
-            opcionPosible++;
-    }
-    personajesJugando[jugador]=personaje;
+    personajesJugando[jugador]=eleccion;
 }
