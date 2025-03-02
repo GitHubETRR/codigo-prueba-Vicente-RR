@@ -1,13 +1,13 @@
 /*
 FUNCIONES RESTANTES:
-Agregar colores para windows y linux con define
-Mensajes
+Mensajes al usar movimientos
 */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "color.h"
 #define MAX_CARACTERES_NOMBRE 50
 #define MAX_CARACTERES_PRESENTACION 1000
 #define CANTIDAD_ESTADISTICAS 5
@@ -172,14 +172,14 @@ void Menu(void)
     opciones_t op;
     do
     {
-        printf("\033[32;4mMenu\033[0m\n");
-        printf("\033[32;1m1_Jugar\033[0m\n");
-        printf("\033[32;1m2_Ingresar un personaje\033[0m\n");
-        printf("\033[32;1m3_Mostrar toda la lista\033[0m\n");
-        printf("\033[32;1m4_Eliminar un personaje\033[0m\n");
-        printf("\033[32;1m5_Editar un personaje\033[0m\n");
-        printf("\033[32;1m6_Guardar los personajes\033[0m\n");
-        printf("\033[32;1m7_Salir\033[0m\n");
+        printf(VERDE NEGRITA SUBRAYADO "Menu\n" RESET);
+        printf(VERDE NEGRITA "1_Jugar\n");
+        printf("2_Ingresar un personaje\n");
+        printf("3_Mostrar toda la lista\n");
+        printf("4_Eliminar un personaje\n");
+        printf("5_Editar un personaje\n");
+        printf("6_Guardar los personajes\n");
+        printf("7_Salir\n" RESET);
         scanf("%d", &op);
         LimpiarTeclado();
         LimpiarPantalla();
@@ -211,7 +211,7 @@ void Menu(void)
                 GuardarDatos();
                 break;
         }
-        printf("Presione enter para continuar\n");
+        printf("Presione enter para continuar...\n");
         fflush(stdin);
         getchar();
         LimpiarTeclado();
@@ -231,52 +231,52 @@ void OrdenarID(void)
 
 void PedirDatos(personaje_t * personaje_ptr)
 {
-    printf("Nombre: ");
+    printf(ROJO NEGRITA SUBRAYADO "Nombre:" RESET ROJO " ");
     //scanf("%s",personaje_ptr->nombre);
     fgets(personaje_ptr->nombre, sizeof(personaje_ptr->nombre), stdin); //fgets permite incluir espacios
     personaje_ptr->nombre[strcspn(personaje_ptr->nombre, "\n")] = 0; //Evita un salto de línea innecesario
-    printf("Presentación: ");
+    printf(RESET NEGRITA SUBRAYADO "Presentación:" RESET " ");
     //scanf("%s",personaje_ptr->presentacion);
     fgets(personaje_ptr->presentacion, sizeof(personaje_ptr->presentacion), stdin);
     personaje_ptr->presentacion[strcspn(personaje_ptr->presentacion, "\n")] = 0;
-    printf("Salud máxima: ");
+    printf(VERDE NEGRITA "Salud máxima: " RESET VERDE);
     scanf("%i",&personaje_ptr->saludMaxima);
-    printf("Ataque: ");
+    printf(VERDE NEGRITA "Ataque: " RESET VERDE);
     scanf("%i",&personaje_ptr->ataque);
-    printf("Ataque especial: ");
+    printf(VERDE NEGRITA "Ataque especial: " RESET VERDE);
     scanf("%i",&personaje_ptr->ataqueEspecial);
-    printf("Defensa: ");
+    printf(VERDE NEGRITA "Defensa: " RESET VERDE);
     scanf("%i",&personaje_ptr->defensa);
-    printf("Defensa especial: ");
+    printf(VERDE NEGRITA "Defensa especial: " RESET VERDE);
     scanf("%i",&personaje_ptr->defensaEspecial);
-    printf("Velocidad: ");
+    printf(VERDE NEGRITA "Velocidad: " RESET VERDE);
     scanf("%i",&personaje_ptr->velocidad);
     LimpiarTeclado();
     for (int i=0; i<CANTIDAD_MOVIMIENTOS; i++)
     {
-        printf("-\n");
-        printf("MOVIMIENTO %i:\n", (i+1));
-        printf("Nombre: ");
+        printf(RESET "-\n");
+        printf(CELESTE NEGRITA SUBRAYADO "MOVIMIENTO %i:\n" RESET, (i+1));
+        printf(CELESTE NEGRITA "Nombre: " RESET CELESTE);
         //scanf("%s",personaje_ptr->movimiento[i].nombre);
         fgets(personaje_ptr->movimiento[i].nombre, sizeof(personaje_ptr->movimiento[i].nombre), stdin);
         personaje_ptr->movimiento[i].nombre[strcspn(personaje_ptr->movimiento[i].nombre, "\n")] = 0;
-        printf("Potencia: ");
+        printf(CELESTE NEGRITA "Potencia: " RESET CELESTE);
         scanf("%i",&personaje_ptr->movimiento[i].potencia);
-        printf("Potencia especial: ");
+        printf(CELESTE NEGRITA "Potencia especial: " RESET CELESTE);
         scanf("%i",&personaje_ptr->movimiento[i].potenciaEspecial);
-        printf("Aumento de salud: ");
+        printf(VERDE NEGRITA "Aumento de salud: " RESET VERDE);
         scanf("%f",&personaje_ptr->movimiento[i].aumentoSalud);
-        printf("Aumento de ataque: ");
+        printf(VERDE NEGRITA "Aumento de ataque: " RESET VERDE);
         scanf("%i",&personaje_ptr->movimiento[i].aumentoEstadisticas[ATAQUE]);
-        printf("Aumento de ataque especial: ");
+        printf(VERDE NEGRITA "Aumento de ataque especial: " RESET VERDE);
         scanf("%i",&personaje_ptr->movimiento[i].aumentoEstadisticas[ATAQUE_ESPECIAL]);
-        printf("Aumento de defensa: ");
+        printf(VERDE NEGRITA "Aumento de defensa: " RESET VERDE);
         scanf("%i",&personaje_ptr->movimiento[i].aumentoEstadisticas[DEFENSA]);
-        printf("Aumento de defensa especial: ");
+        printf(VERDE NEGRITA "Aumento de defensa especial: " RESET VERDE);
         scanf("%i",&personaje_ptr->movimiento[i].aumentoEstadisticas[DEFENSA_ESPECIAL]);
-        printf("Aumento de velocidad: ");
+        printf(VERDE NEGRITA "Aumento de velocidad: " RESET VERDE);
         scanf("%i",&personaje_ptr->movimiento[i].aumentoEstadisticas[VELOCIDAD]);
-        printf("Usos: ");
+        printf(RESET NEGRITA "Usos: " RESET);
         scanf("%i",&personaje_ptr->movimiento[i].usosMaximos);
         LimpiarTeclado();
     }
@@ -313,25 +313,25 @@ void IngresarPersonaje(void) //Considerando que el usuario conoce todas las limi
 void ImprimirPersonaje(personaje_t * personaje, bool mostrarDatos)
 {
     printf("\n--------------------\n");
-    printf("ID: %i\n",personaje->id);
-    printf("Nombre: %s\n",personaje->nombre);
+    printf(NEGRITA SUBRAYADO "ID:" RESET " %i\n",personaje->id);
+    printf(ROJO NEGRITA SUBRAYADO "Nombre:" RESET ROJO " %s\n" RESET,personaje->nombre);
     if (mostrarDatos)
     {
-        printf("Presentación: %s\n",personaje->presentacion);
-        printf("\nESTADÍSTICAS:\n");
-        printf("Salud: %i\n",personaje->saludMaxima);
-        printf("Ataque: %i\n",personaje->ataque);
-        printf("Ataque Especial: %i\n",personaje->ataqueEspecial);
-        printf("Defensa: %i\n",personaje->defensa);
-        printf("Defensa Especial: %i\n",personaje->defensaEspecial);
-        printf("Velocidad: %i\n",personaje->velocidad);
+        printf(NEGRITA "Presentación:" RESET " %s\n",personaje->presentacion);
+        printf(VERDE NEGRITA SUBRAYADO "\nESTADÍSTICAS:\n" RESET);
+        printf(VERDE NEGRITA "Salud: " RESET "%i\n",personaje->saludMaxima);
+        printf(VERDE NEGRITA "Ataque: " RESET "%i\n",personaje->ataque);
+        printf(VERDE NEGRITA "Ataque Especial: " RESET "%i\n",personaje->ataqueEspecial);
+        printf(VERDE NEGRITA "Defensa: " RESET "%i\n",personaje->defensa);
+        printf(VERDE NEGRITA "Defensa Especial: " RESET "%i\n",personaje->defensaEspecial);
+        printf(VERDE NEGRITA "Velocidad: " RESET "%i\n",personaje->velocidad);
         for (int i=0; i<CANTIDAD_MOVIMIENTOS; i++)
         {
             printf("-\n");
-            printf("Movimiento %i: %s\n", (i+1), personaje->movimiento[i].nombre);
-            printf("Potencia / Potencia Especial: %i / %i\n", personaje->movimiento[i].potencia, personaje->movimiento[i].potenciaEspecial);
-            printf("Aumento de SALUD / ATAQUE / ATAQUE ESPECIAL / DEFENSA / DEFENSA ESPECIAL / VELOCIDAD: %.2f / %i / %i / %i / %i / %i\n", personaje->movimiento[i].aumentoSalud, personaje->movimiento[i].aumentoEstadisticas[ATAQUE], personaje->movimiento[i].aumentoEstadisticas[ATAQUE_ESPECIAL], personaje->movimiento[i].aumentoEstadisticas[DEFENSA], personaje->movimiento[i].aumentoEstadisticas[DEFENSA_ESPECIAL], personaje->movimiento[i].aumentoEstadisticas[VELOCIDAD]);
-            printf("Usos: %i\n", personaje->movimiento[i].usosMaximos);
+            printf(CELESTE NEGRITA SUBRAYADO "Movimiento %i:" RESET CELESTE " %s\n", (i+1), personaje->movimiento[i].nombre);
+            printf(CELESTE NEGRITA "Potencia / Potencia Especial:" RESET " %i / %i\n", personaje->movimiento[i].potencia, personaje->movimiento[i].potenciaEspecial);
+            printf(VERDE NEGRITA "Aumento de SALUD / ATAQUE / ATAQUE ESPECIAL / DEFENSA / DEFENSA ESPECIAL / VELOCIDAD:" RESET " %.2f / %i / %i / %i / %i / %i\n", personaje->movimiento[i].aumentoSalud, personaje->movimiento[i].aumentoEstadisticas[ATAQUE], personaje->movimiento[i].aumentoEstadisticas[ATAQUE_ESPECIAL], personaje->movimiento[i].aumentoEstadisticas[DEFENSA], personaje->movimiento[i].aumentoEstadisticas[DEFENSA_ESPECIAL], personaje->movimiento[i].aumentoEstadisticas[VELOCIDAD]);
+            printf(NEGRITA "Usos:" RESET " %i\n", personaje->movimiento[i].usosMaximos);
         }
     }
     printf("--------------------\n");
@@ -362,19 +362,19 @@ void BuscarPersonaje(bool eliminar)
     char opcion;
     personaje_t * personaje_ptr;
 
-    printf("ID: ");
+    printf(NEGRITA "ID: " RESET);
     scanf("%i", &id);
     LimpiarTeclado();
     personaje_ptr = ApuntarID(id);
     if (personaje_ptr==NULL)
-        printf("No se encontró el personaje\n");
+        printf(ROJO "No se encontró el personaje\n" RESET);
     else
     {
         if (eliminar)
-            printf("Eliminar a ");
+            printf(ROJO NEGRITA "Eliminar a ");
         else
-            printf("Editar a ");
-        printf("%s(S/N)", personaje_ptr->nombre);
+            printf(AMARILLO NEGRITA "Editar a ");
+        printf(RESET CELESTE "%s" RESET "(S/N)", personaje_ptr->nombre);
         scanf("%c", &opcion);
         LimpiarTeclado();
         if ((opcion=='S')||(opcion=='s'))
@@ -419,7 +419,7 @@ void GuardarDatos(void)
         lista=lista->next;
     }
     fclose(fp);
-    printf("Datos guardados\n");
+    printf(VERDE NEGRITA "Datos guardados\n" RESET);
 }
 
 void LiberarMemoria(void)
@@ -469,7 +469,7 @@ void Jugar(void)
         jugar=Turno(personajes, personajesJugando, movimientos);
     } while (jugar);
     ganador = VerificarVictoria(personajes);
-    printf("%s gana la partida\n", nombres[ganador]);
+    printf(VIOLETA NEGRITA "%s gana la partida\n" RESET, nombres[ganador]);
 }
 
 void Interfaz(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES])
@@ -483,22 +483,23 @@ void Interfaz(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJ
             if ((personajes[jugador][i].id!=SIN_PERSONAJE)&&(personajes[jugador][i].salud>0))
                 personajesVivos++;
         }
-        printf("\033[34;7m%s (%i)\033[0m\n", nombres[jugador], personajesVivos);
-        printf("\033[33;7m%s\033[0m ", personajes[jugador][personajesJugando[jugador]].nombre);
+        printf(CELESTE NEGRITA F_NEGRO "%s (%i)" RESET "\n", nombres[jugador], personajesVivos);
+        printf(VIOLETA NEGRITA "%s " RESET, personajes[jugador][personajesJugando[jugador]].nombre);
         if (((100*personajes[jugador][personajesJugando[jugador]].salud) / personajes[jugador][personajesJugando[jugador]].saludMaxima)>PORC_SALUD_1)
-            printf("\033[32;1m%i%\033[0m\n", (100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)); //Verde
+            printf(VERDE NEGRITA "%i%\n" RESET, (100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)); //Verde
         else
         {
             if (((100*personajes[jugador][personajesJugando[jugador]].salud) / personajes[jugador][personajesJugando[jugador]].saludMaxima)>PORC_SALUD_2)
-                printf("\033[33;1m%i%\033[0m\n", (100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)); //Amarillo
+                printf(AMARILLO NEGRITA "%i%\n" RESET, (100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)); //Amarillo
             else
             {
                 if (((100*personajes[jugador][personajesJugando[jugador]].salud) / personajes[jugador][personajesJugando[jugador]].saludMaxima)>PORC_SALUD_3)
-                    printf("\033[31;1m%i%\033[0m\n", (100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)); //Rojo
+                    printf(ROJO NEGRITA "%i%\n" RESET, (100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)); //Rojo
                 else
-                    printf("\033[31;7m1%\033[0m\n");
+                    printf(F_ROJO NEGRITA "1%" RESET "\n");
             }
         }
+        printf("\n");
     }
     printf("\n");
 }
@@ -507,12 +508,13 @@ void ElegirNombres(void)
 {
     for (int jugador=0; jugador<JUGADORES; jugador++)
     {
-        printf("Jugador %i, introducí tu nombre (máximo %i caracteres)\n", jugador, MAX_CARACTERES_NOMBRE);
+        printf(VIOLETA NEGRITA "Jugador %i" RESET ", introducí tu nombre (máximo %i caracteres)\n" VIOLETA, jugador, MAX_CARACTERES_NOMBRE);
         fgets(nombres[jugador], sizeof(nombres[jugador]), stdin);
         nombres[jugador][strcspn(nombres[jugador], "\n")] = 0;
         //scanf("%s", nombres[jugador]);
         LimpiarTeclado();
         LimpiarPantalla();
+        printf(RESET);
     }
 }
 
@@ -528,9 +530,9 @@ void ElegirPersonajes(personaje_t personajes[JUGADORES][MAX_PERSONAJES])
             do
             {
                 respuestaValida = true;
-                printf("%s, introducí el ID del %i° personaje\n", nombres[jugador], (personaje+1));
+                printf(VIOLETA NEGRITA "%s" RESET ", introducí el ID del %i° personaje\n", nombres[jugador], (personaje+1));
                 if (personaje!=0) //Si no es el primer personaje, porque el equipo no puede estar vacío
-                    printf("Enviá %i para terminar el equipo\n", SIN_PERSONAJE);
+                    printf(NEGRITA "Enviá %i para terminar el equipo\n" RESET, SIN_PERSONAJE);
                 scanf("%i", &id);
                 if ((id==SIN_PERSONAJE)&&(personaje!=0))
                 {
@@ -547,7 +549,7 @@ void ElegirPersonajes(personaje_t personajes[JUGADORES][MAX_PERSONAJES])
                     else
                     {
                         respuestaValida=false;
-                        printf("No se encontró el personaje\n");
+                        printf(ROJO "No se encontró el personaje\n" RESET);
                     }
                 }
             } while (!respuestaValida);
@@ -580,13 +582,13 @@ int MenuMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int perso
     int opcion=1;
 
     Interfaz(personajes, personajesJugando);
-    printf("%s\n", nombres[jugador]);
+    printf(VIOLETA NEGRITA "%s\n" RESET, nombres[jugador]);
     for (int movimiento=0; movimiento<CANTIDAD_MOVIMIENTOS; movimiento++)
     {
         if (personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usos>0)
-            printf("\033[36;1m%i_%s - %i/%i\033[0m\n", opcion, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].nombre, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usos, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usosMaximos);
+            printf(CELESTE NEGRITA "%i_%s - %i/%i\n" RESET, opcion, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].nombre, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usos, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].usosMaximos);
         else
-            printf("\033[30;1m%s - 0/0\033[0m\n", personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].nombre);
+            printf(NEGRO NEGRITA "%s - 0/0\n" RESET, personajes[jugador][personajesJugando[jugador]].movimiento[movimiento].nombre);
         opcion++;
     }
     for (int personaje=0; personaje<MAX_PERSONAJES; personaje++)
@@ -596,9 +598,9 @@ int MenuMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int perso
             if (personaje!=personajesJugando[jugador])
             {
                 if (personajes[jugador][personaje].salud>0)
-                    printf("\033[33;1m%i_%s - %i%\033[0m\n", opcion, personajes[jugador][personaje].nombre, (100*personajes[jugador][personaje].salud/personajes[jugador][personaje].saludMaxima));
+                    printf(AMARILLO NEGRITA "%i_%s - %i%\n" RESET, opcion, personajes[jugador][personaje].nombre, (100*personajes[jugador][personaje].salud/personajes[jugador][personaje].saludMaxima));
                 else
-                    printf("\033[30;1m%s - 0%\033[0m\n", personajes[jugador][personaje].nombre);
+                    printf(NEGRO NEGRITA "%s - 0%\n" RESET, personajes[jugador][personaje].nombre);
             }
             opcion++;
         }
@@ -634,7 +636,7 @@ void ElegirOpcion(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int persona
                         opcionValida=true;
                     }
                     else
-                        printf("No te quedan usos para este movimiento\n");
+                        printf(ROJO "No te quedan usos para este movimiento\n" RESET);
                 }
                 else //se eligió un personaje
                 {
@@ -645,11 +647,11 @@ void ElegirOpcion(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int persona
                         opcionValida=true;
                     }
                     else
-                        printf("%s está debilitado\n", personajes[jugador][eleccion-CANTIDAD_MOVIMIENTOS-1].nombre);
+                        printf(ROJO "%s está debilitado\n" RESET, personajes[jugador][eleccion-CANTIDAD_MOVIMIENTOS-1].nombre);
                 }
             }
             else
-                printf("Introducí una opción válida\n");
+                printf(ROJO "Introducí una opción válida\n" RESET);
         }
     } while (!opcionValida);
 }
@@ -809,7 +811,7 @@ bool VerificarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int perso
     {
         if (personajes[jugador][personajesJugando[jugador]].salud==0)
         {
-            printf("%s se debilitó\n", personajes[jugador][personajesJugando[jugador]].nombre);
+            printf(ROJO NEGRITA "%s" RESET ROJO " se debilitó\n" RESET, personajes[jugador][personajesJugando[jugador]].nombre);
             if (victoria==SIN_VICTORIA)
             {
                 ElegirCambio(personajes, personajesJugando, jugador);
@@ -848,12 +850,12 @@ void ElegirCambio(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int persona
     int eleccion;
     bool eleccionValida;
 
-    printf("%s, elegí un personaje para reemplazarlo\n", nombres[jugador]);
+    printf(VIOLETA NEGRITA "%s" RESET ", elegí un personaje para reemplazarlo\n", nombres[jugador]);
     for (int i=0; i<MAX_PERSONAJES; i++)
     {
         if ((personajes[jugador][i].id!=SIN_PERSONAJE)&&(personajes[jugador][i].salud>0))
         {
-            printf("\033[33;1m%i_%s - %i/%i%\033[0m\n", (i+1), personajes[jugador][i].nombre, personajes[jugador][i].salud, personajes[jugador][i].saludMaxima);
+            printf(AMARILLO NEGRITA "%i_%s - %i/%i%\n" RESET, (i+1), personajes[jugador][i].nombre, personajes[jugador][i].salud, personajes[jugador][i].saludMaxima);
         }
     }
     do
@@ -864,7 +866,7 @@ void ElegirCambio(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int persona
         if ((eleccion>=0)&&(eleccion<MAX_PERSONAJES)&&(personajes[jugador][eleccion].salud>0)&&(personajes[jugador][eleccion].id!=SIN_PERSONAJE))
             eleccionValida=true;
         else
-            printf("Ingresá una opción válida\n");
+            printf(ROJO "Ingresá una opción válida\n" RESET);
     } while (!eleccionValida);
     personajesJugando[jugador]=eleccion;
 }
