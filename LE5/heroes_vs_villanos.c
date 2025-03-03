@@ -1,8 +1,3 @@
-/*
-FUNCIONES RESTANTES:
-Mensajes al usar movimientos
-*/
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,6 +5,7 @@ Mensajes al usar movimientos
 #include "color.h"
 #define MAX_CARACTERES_NOMBRE 50
 #define MAX_CARACTERES_PRESENTACION 1000
+#define MAX_CARACTERES_ESTADISTICA 17
 #define CANTIDAD_ESTADISTICAS 5
 #define CANTIDAD_MOVIMIENTOS 6
 
@@ -84,6 +80,7 @@ char nombres[JUGADORES][MAX_CARACTERES_NOMBRE];
 //MENÚ
 void LeerDatos(void);
 void Menu(void);
+void Pausar(void);
 void OrdenarID(void);
 void PedirDatos(personaje_t * personaje_ptr);
 void IngresarPersonaje(void);
@@ -211,12 +208,20 @@ void Menu(void)
                 GuardarDatos();
                 break;
         }
-        printf("Presione enter para continuar...\n");
-        fflush(stdin);
-        getchar();
-        LimpiarTeclado();
-        LimpiarPantalla();
+        Pausar();
     }while(op!=SALIR);
+}
+
+void Pausar(void)
+{
+    printf("Presione enter para continuar...\n");
+    /*
+    En caso de que se saltee algún texto, agregar estas líneas
+    fflush(stdin);
+    getchar();
+    */
+    LimpiarTeclado();
+    LimpiarPantalla();
 }
 
 void OrdenarID(void)
@@ -483,8 +488,8 @@ void Interfaz(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJ
             if ((personajes[jugador][i].id!=SIN_PERSONAJE)&&(personajes[jugador][i].salud>0))
                 personajesVivos++;
         }
-        printf(CELESTE NEGRITA F_NEGRO "%s (%i)" RESET "\n", nombres[jugador], personajesVivos);
-        printf(VIOLETA NEGRITA "%s " RESET, personajes[jugador][personajesJugando[jugador]].nombre);
+        printf(VIOLETA NEGRITA F_NEGRO "%s (%i)" RESET "\n", nombres[jugador], personajesVivos);
+        printf(CELESTE NEGRITA "%s " RESET, personajes[jugador][personajesJugando[jugador]].nombre);
         if (((100*personajes[jugador][personajesJugando[jugador]].salud) / personajes[jugador][personajesJugando[jugador]].saludMaxima)>PORC_SALUD_1)
             printf(VERDE NEGRITA "%i%\n" RESET, (100*personajes[jugador][personajesJugando[jugador]].salud / personajes[jugador][personajesJugando[jugador]].saludMaxima)); //Verde
         else
@@ -654,6 +659,7 @@ void ElegirOpcion(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int persona
                 printf(ROJO "Introducí una opción válida\n" RESET);
         }
     } while (!opcionValida);
+    LimpiarTeclado();
 }
 
 void ElegirMovimientos(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES], int cambioPersonaje[JUGADORES])
@@ -691,6 +697,7 @@ void CambiarPersonajes(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int ca
     {
         if (cambioPersonaje[jugador]!=SIN_CAMBIO)
         {
+            printf(VIOLETA NEGRITA "%s" RESET VERDE " cambió a " CELESTE NEGRITA "%s" RESET VERDE " por " CELESTE NEGRITA "%s\n" RESET, nombres[jugador], personajes[jugador][personajesJugando[jugador]].nombre, personajes[jugador][cambioPersonaje[jugador]].nombre);
             personajesJugando[jugador] = cambioPersonaje[jugador];
         }
     }
@@ -723,6 +730,7 @@ bool Turno(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJuga
         if (!jugar)
             t=JUGADORES;
     }
+    Pausar();
     return jugar;
 }
 
@@ -751,17 +759,26 @@ void Atacar(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJug
 {
     float multiplicador[CANTIDAD_ESTADISTICAS-1]; //Menos la velocidad, que ya fue calculada
     int personajeRival = !personajeTurno;
+    int dano = 0; //daño
     
     CalcularMultiplicadores(personajes, personajesJugando, multiplicador, personajeTurno);
     if (movimientos[personajeTurno]==FORCEJEO)
     {
-        personajes[personajeRival][personajesJugando[personajeRival]].salud -= multiplicador[ATAQUE] / multiplicador[DEFENSA] * FORCEJEO_POTENCIA * personajes[personajeTurno][personajesJugando[personajeTurno]].ataque / personajes[personajeRival][personajesJugando[personajeRival]].defensa;
-        personajes[personajeRival][personajesJugando[personajeRival]].salud -= multiplicador[ATAQUE_ESPECIAL] / multiplicador[DEFENSA_ESPECIAL] * FORCEJEO_POTENCIA * personajes[personajeTurno][personajesJugando[personajeTurno]].ataqueEspecial / personajes[personajeRival][personajesJugando[personajeRival]].defensaEspecial;
+        printf(CELESTE NEGRITA "%s" RESET " usó " CELESTE DESVANECIDO "Forcejeo\n" RESET, personajes[personajeTurno][personajesJugando[personajeTurno]].nombre);
+        dano += multiplicador[ATAQUE] / multiplicador[DEFENSA] * FORCEJEO_POTENCIA * personajes[personajeTurno][personajesJugando[personajeTurno]].ataque / personajes[personajeRival][personajesJugando[personajeRival]].defensa;
+        dano += multiplicador[ATAQUE_ESPECIAL] / multiplicador[DEFENSA_ESPECIAL] * FORCEJEO_POTENCIA * personajes[personajeTurno][personajesJugando[personajeTurno]].ataqueEspecial / personajes[personajeRival][personajesJugando[personajeRival]].defensaEspecial;
     }
     else
     {
-        personajes[personajeRival][personajesJugando[personajeRival]].salud -= multiplicador[ATAQUE] / multiplicador[DEFENSA] * personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].potencia * personajes[personajeTurno][personajesJugando[personajeTurno]].ataque / personajes[personajeRival][personajesJugando[personajeRival]].defensa;
-        personajes[personajeRival][personajesJugando[personajeRival]].salud -= multiplicador[ATAQUE_ESPECIAL] / multiplicador[DEFENSA_ESPECIAL] * personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].potenciaEspecial * personajes[personajeTurno][personajesJugando[personajeTurno]].ataqueEspecial / personajes[personajeRival][personajesJugando[personajeRival]].defensaEspecial;
+        printf(CELESTE NEGRITA "%s" RESET " usó " CELESTE "%s\n" RESET, personajes[personajeTurno][personajesJugando[personajeTurno]].nombre, personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].nombre);
+        dano += multiplicador[ATAQUE] / multiplicador[DEFENSA] * personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].potencia * personajes[personajeTurno][personajesJugando[personajeTurno]].ataque / personajes[personajeRival][personajesJugando[personajeRival]].defensa;
+        dano += multiplicador[ATAQUE_ESPECIAL] / multiplicador[DEFENSA_ESPECIAL] * personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].potenciaEspecial * personajes[personajeTurno][personajesJugando[personajeTurno]].ataqueEspecial / personajes[personajeRival][personajesJugando[personajeRival]].defensaEspecial;
+    }
+    personajes[personajeRival][personajesJugando[personajeRival]].salud -= dano;
+    if (dano>0)
+    {
+        int porcentajeDano = (100*dano)/personajes[personajeRival][personajesJugando[personajeRival]].saludMaxima;
+        printf(CELESTE NEGRITA "%s" RESET " perdió " ROJO "%i%" RESET " de salud\n", personajes[personajeRival][personajesJugando[personajeRival]].nombre, porcentajeDano);
     }
     if (personajes[personajeRival][personajesJugando[personajeRival]].salud<0)
         personajes[personajeRival][personajesJugando[personajeRival]].salud=0;
@@ -786,9 +803,17 @@ void CalcularMultiplicadores(personaje_t personajes[JUGADORES][MAX_PERSONAJES], 
 
 void AumentarEstadisticas(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int personajeTurno, int movimientos[JUGADORES])
 {
+    char nombreEstadistica[CANTIDAD_ESTADISTICAS][MAX_CARACTERES_ESTADISTICA] = {"ATAQUE", "ATAQUE ESPECIAL", "DEFENSA", "DEFENSA ESPECIAL", "VELOCIDAD"};
     for (int i=0; i<CANTIDAD_ESTADISTICAS; i++)
     {
+        if ((personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].aumentoEstadisticas[i]>0) && (personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[i]<MAX_AUMENTO_ESTADISTICAS))
+            printf(VERDE NEGRITA "%s" RESET " de " CELESTE NEGRITA "%s" RESET " aumentó\n", nombreEstadistica[i], personajes[personajeTurno][personajesJugando[personajeTurno]].nombre);
+        
+        if ((personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].aumentoEstadisticas[i]<0) && (personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[i]>MAX_AUMENTO_ESTADISTICAS))
+            printf(VERDE NEGRITA "%s" RESET " de " CELESTE NEGRITA "%s" RESET " disminuyó\n", nombreEstadistica[i], personajes[personajeTurno][personajesJugando[personajeTurno]].nombre);
+
         personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[i] += personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].aumentoEstadisticas[i];
+        
         if (personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[i]<MIN_AUMENTO_ESTADISTICAS)
             personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[i]=MIN_AUMENTO_ESTADISTICAS;
         if (personajes[personajeTurno][personajesJugando[personajeTurno]].aumentoEstadisticas[i]>MAX_AUMENTO_ESTADISTICAS)
@@ -801,6 +826,12 @@ void AumentarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int person
     personajes[personajeTurno][personajesJugando[personajeTurno]].salud+=personajes[personajeTurno][personajesJugando[personajeTurno]].saludMaxima * personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].aumentoSalud;
     if (personajes[personajeTurno][personajesJugando[personajeTurno]].salud > personajes[personajeTurno][personajesJugando[personajeTurno]].saludMaxima)
         personajes[personajeTurno][personajesJugando[personajeTurno]].salud = personajes[personajeTurno][personajesJugando[personajeTurno]].saludMaxima;
+
+    int porcentajeSalud = (int)(100*personajes[personajeTurno][personajesJugando[personajeTurno]].movimiento[movimientos[personajeTurno]].aumentoSalud);
+    if (porcentajeSalud>0)
+        printf("La salud de " CELESTE NEGRITA "%s" RESET " aumentó un " VERDE NEGRITA "%i%\n" RESET, personajes[personajeTurno][personajesJugando[personajeTurno]].nombre, porcentajeSalud);
+    if (porcentajeSalud<0)
+        printf("La salud de " CELESTE NEGRITA "%s" RESET " disminuyó un " ROJO NEGRITA "%i%\n" RESET, personajes[personajeTurno][personajesJugando[personajeTurno]].nombre, (-porcentajeSalud));
 }
 
 bool VerificarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int personajesJugando[JUGADORES], int movimientos[JUGADORES])
@@ -812,6 +843,7 @@ bool VerificarSalud(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int perso
         if (personajes[jugador][personajesJugando[jugador]].salud==0)
         {
             printf(ROJO NEGRITA "%s" RESET ROJO " se debilitó\n" RESET, personajes[jugador][personajesJugando[jugador]].nombre);
+            Pausar();
             if (victoria==SIN_VICTORIA)
             {
                 ElegirCambio(personajes, personajesJugando, jugador);
@@ -869,4 +901,5 @@ void ElegirCambio(personaje_t personajes[JUGADORES][MAX_PERSONAJES], int persona
             printf(ROJO "Ingresá una opción válida\n" RESET);
     } while (!eleccionValida);
     personajesJugando[jugador]=eleccion;
+    LimpiarPantalla();
 }
