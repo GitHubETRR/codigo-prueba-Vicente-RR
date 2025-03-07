@@ -20,11 +20,24 @@ typedef struct
     bool titular;
 } jugador_t;
 
+void ArmarEquipo(jugador_t equipo[CANTIDAD_JUGADORES]);
+void PedirDatos(jugador_t equipo[CANTIDAD_JUGADORES], int jugador);
+void PedirNombre(jugador_t equipo[CANTIDAD_JUGADORES], int jugador);
+void PedirCamiseta(jugador_t equipo[CANTIDAD_JUGADORES], int jugador);
+bool ComprobarCamiseta(int numero, jugador_t equipo[CANTIDAD_JUGADORES], int jugador);
+bool CamisetaUsada(int numero, jugador_t equipo[CANTIDAD_JUGADORES], int jugador);
+void PedirTitular(jugador_t equipo[CANTIDAD_JUGADORES], int jugador);
+int ComprobarLugar(jugador_t equipo[CANTIDAD_JUGADORES], int jugador);
+void ImprimirEquipo(jugador_t equipo[CANTIDAD_JUGADORES]);
+void BuscarCamiseta(jugador_t equipo[CANTIDAD_JUGADORES], int nCamiseta, bool titular);
+void LimpiarTeclado(void);
+
 int main()
 {
     jugador_t equipo[CANTIDAD_JUGADORES];
     
     ArmarEquipo(equipo);
+    ImprimirEquipo(equipo);
     
     return 0;
 }
@@ -44,23 +57,26 @@ void PedirDatos(jugador_t equipo[CANTIDAD_JUGADORES], int jugador)
 
 void PedirNombre(jugador_t equipo[CANTIDAD_JUGADORES], int jugador)
 {
-    printf("Introducí el nombre del %i° jugador del equipo\n", jugador);
+    printf("Introducí el nombre del %i° jugador del equipo\n", (jugador+1)); //Para que vaya del 1 al 22 y no del 0 al 21
     scanf("%s", equipo[jugador].nombre);
+    LimpiarTeclado();
 }
 
 void PedirCamiseta(jugador_t equipo[CANTIDAD_JUGADORES], int jugador)
 {
+    bool valido;
+    int numero;
+    
     do
     {
-        bool valido;
-        int numero;
-        
         printf("Introducí el número de camiseta\n");
         scanf("%i", &numero);
+        LimpiarTeclado();
         valido = ComprobarCamiseta(numero, equipo, jugador);
         if (!valido)
             printf("Número no válido\n");
     } while (!valido);
+    equipo[jugador].camiseta = numero;
 }
 
 bool ComprobarCamiseta(int numero, jugador_t equipo[CANTIDAD_JUGADORES], int jugador)
@@ -94,8 +110,9 @@ void PedirTitular(jugador_t equipo[CANTIDAD_JUGADORES], int jugador)
     switch (lugarDisponible)
     {
         case DISPONIBLE:
-            printf("Enviá %c si el jugador es titular (si es suplente, otro caracter\n", TECLA_TITULAR);
+            printf("Enviá %c si el jugador es titular (si es suplente, otro caracter)\n", TECLA_TITULAR);
             scanf("%c", &tecla);
+            LimpiarTeclado();
             if (tecla==TECLA_TITULAR)
                 equipo[jugador].titular = true;
             else
@@ -118,7 +135,7 @@ int ComprobarLugar(jugador_t equipo[CANTIDAD_JUGADORES], int jugador)
     int titulares = 0;
     int suplentes = 0;
     
-    for (int i=0; i<jugador, i++)
+    for (int i=0; i<jugador; i++)
         if (equipo[i].titular)
             titulares++;
         else
@@ -129,4 +146,30 @@ int ComprobarLugar(jugador_t equipo[CANTIDAD_JUGADORES], int jugador)
         lugarDisponible=DISPONIBLE_TITULAR;
     
     return lugarDisponible;
+}
+
+void ImprimirEquipo(jugador_t equipo[CANTIDAD_JUGADORES])
+{
+    printf("Titulares:\n");
+    for (int nCamiseta=MIN_CAMISETA; nCamiseta<(MAX_CAMISETA+1); nCamiseta++) //+1 para que incluya el 99
+        BuscarCamiseta(equipo, nCamiseta, true);
+    printf("Suplentes:\n");
+    for (int nCamiseta=MIN_CAMISETA; nCamiseta<(MAX_CAMISETA+1); nCamiseta++)
+        BuscarCamiseta(equipo, nCamiseta, false);
+}
+
+void BuscarCamiseta(jugador_t equipo[CANTIDAD_JUGADORES], int nCamiseta, bool titular)
+{
+    for (int jugador=0; jugador<CANTIDAD_JUGADORES; jugador++)
+        if ((equipo[jugador].camiseta==nCamiseta)&&(equipo[jugador].titular==titular))
+            printf("%i: %s\n", nCamiseta, equipo[jugador].nombre);
+}
+
+void LimpiarTeclado(void)
+{
+    int c;
+    do
+    {
+        c = getchar();
+    } while (c != EOF && c != '\n');
 }
