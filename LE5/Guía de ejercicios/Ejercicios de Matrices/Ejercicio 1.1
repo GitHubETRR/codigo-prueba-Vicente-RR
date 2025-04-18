@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define N 5
+#define MIN 1
+#define MAX 30
+
+void llenar_matriz(int matriz[N][N]);
+int calcular_maximo(int matriz[N][N]);
+void buscar_maximos(int matriz[N][N], int max);
+
+int main()
+{
+    int matriz[N][N];
+    int max;
+    
+    srand(time(NULL));
+    llenar_matriz(matriz);
+    max=calcular_maximo(matriz);
+    buscar_maximos(matriz, max);
+
+    return 0;
+}
+
+void llenar_matriz(int matriz[N][N])
+{
+    for (int y=0; y<N; y++)
+    {
+        for (int x=0; x<N; x++)
+        {
+            matriz[x][y] = MIN+rand()%(MAX+1-MIN);
+            printf("%i ", matriz[x][y]);
+        }
+        printf("\n");
+    }
+}
+
+int calcular_maximo(int matriz[N][N])
+{
+    int max=MIN;
+    for (int y=0; y<N; y++)
+    {
+        for (int x=0; x<N; x++)
+        {
+            if (matriz[x][y]>max)
+                max=matriz[x][y];
+        }
+    }
+    return max;
+}
+
+void buscar_maximos(int matriz[N][N], int max)
+{
+    printf("El valor máximo es %i y se encuentra en:\n", max);
+    for (int y=0; y<N; y++)
+    {
+        for (int x=0; x<N; x++)
+        {
+            if (matriz[x][y]==max)
+                printf("%i; %i\n", x, y);
+        }
+    }
+}
